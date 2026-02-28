@@ -1,4 +1,4 @@
-/* itinerari.jsx */
+/* itinerary.jsx */
 /* GitHub Pages-ready (sin bundler). No lucide-react. Render incluido. */
 
 const { useEffect, useMemo, useRef, useState } = React;
