@@ -363,7 +363,7 @@ FIN DEL PROMPT`;
 
   const StepHeaderIcon = () => (
     <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
-      <img src="icon-tblanco-bgverde.jpg" alt="TRIB & TRIP" style={styles.stepIcon} />
+      <img src="./icon-tblanco-bgverde.jpg" alt="TRIB & TRIP" style={styles.stepIcon} />
     </div>
   );
 
