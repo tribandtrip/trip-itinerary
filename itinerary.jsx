@@ -1,22 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Plane,
-  Calendar,
-  Users,
-  Map,
-  Clock,
-  Home,
-  CheckCircle2,
-  Battery,
-  Wallet,
-  Heart,
-  Sparkles,
-  ArrowRight,
-  RefreshCcw,
-  Copy,
-  ShieldCheck,
-  ExternalLink,
-} from "lucide-react";
+/* itinerari.jsx */
+/* GitHub Pages-ready (sin bundler). No lucide-react. Render incluido. */
+
+const { useEffect, useMemo, useRef, useState } = React;
 
 const INITIAL_DATA = {
   destino: "",
@@ -33,13 +18,36 @@ const INITIAL_DATA = {
   estadoEmocional: "",
 };
 
-// Tierra profunda: #54614A
-// Arena clara: #F0EBE1
-// Carbón suave: #3C3C3B
-// Ocre Camino: #C5A869
-// Blanco: #FFFFFF
+// Colores marca
+const BRAND = {
+  tierra: "#54614A",
+  arena: "#F0EBE1",
+  carbon: "#3C3C3B",
+  ocre: "#C5A869",
+  blanco: "#FFFFFF",
+};
 
-export default function App() {
+// Iconos simples (emoji) para evitar dependencias
+const ICON = {
+  sparkles: "✨",
+  map: "🗺️",
+  calendar: "📅",
+  users: "👤",
+  plane: "✈️",
+  clock: "⏰",
+  home: "🏠",
+  check: "✅",
+  battery: "🔋",
+  wallet: "💳",
+  heart: "❤️",
+  shield: "🛡️",
+  copy: "📋",
+  link: "🔗",
+  arrow: "➡️",
+  refresh: "🔄",
+};
+
+function App() {
   const [step, setStep] = useState(0);
   const [data, setData] = useState(INITIAL_DATA);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
@@ -47,13 +55,14 @@ export default function App() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
 
   const updateData = (field, value) => setData((prev) => ({ ...prev, [field]: value }));
-
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => Math.max(0, prev - 1));
+
+  const canProceedStep1 = Boolean(data.destino?.trim()) && Boolean(data.fechas?.trim());
 
   const buildPrompt = () => {
     const DESTINO = data.destino || "";
@@ -68,7 +77,7 @@ export default function App() {
     const PRESUPUESTO = data.presupuesto?.trim() ? data.presupuesto.trim() : "No definido";
     const ESTADO_EMOCIONAL = data.estadoEmocional?.trim() ? data.estadoEmocional.trim() : "No especificado";
 
-    const prompt = `INICIO DEL PROMPT
+    return `INICIO DEL PROMPT
 Quiero que actúes como mi asistente de viaje personal con el estilo TRIB & TRIP.
 
 Filosofía (obligatoria):
@@ -122,8 +131,6 @@ Restricciones:
 	•	Si algo es incierto, da rangos y di que hay que verificar.
 	•	Evita listas interminables: prioriza calidad y coherencia.
 FIN DEL PROMPT`;
-
-    return prompt;
   };
 
   const generatePromptAndGo = () => {
@@ -132,6 +139,7 @@ FIN DEL PROMPT`;
     setStep(5);
   };
 
+  // Copia “clásica” (funciona incluso cuando writeText está bloqueado por Permissions-Policy)
   const copyToClipboard = () => {
     const textArea = document.createElement("textarea");
     textArea.value = generatedPrompt;
@@ -148,6 +156,7 @@ FIN DEL PROMPT`;
       setTimeout(() => setCopied(false), 1800);
     } catch (err) {
       console.error("Error copiando al portapapeles:", err);
+      setCopied(false);
     }
 
     document.body.removeChild(textArea);
@@ -163,65 +172,259 @@ FIN DEL PROMPT`;
   const openChatGPT = () => window.open("https://chat.openai.com/", "_blank", "noopener,noreferrer");
   const openGemini = () => window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
 
+  const styles = useMemo(() => {
+    return {
+      page: {
+        minHeight: "100vh",
+        background: BRAND.arena,
+        padding: "16px",
+        fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
+        color: BRAND.carbon,
+      },
+      container: {
+        maxWidth: 860,
+        margin: "0 auto",
+        padding: "8px 0 32px",
+      },
+      progressWrap: {
+        maxWidth: 720,
+        margin: "0 auto 22px",
+        height: 8,
+        background: BRAND.blanco,
+        borderRadius: 999,
+        overflow: "hidden",
+        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.08)",
+      },
+      progressBar: (pct) => ({
+        width: `${pct}%`,
+        height: "100%",
+        background: BRAND.ocre,
+        transition: "width 300ms ease",
+      }),
+      brandTitle: {
+        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+        fontWeight: 900,
+        letterSpacing: "-0.04em",
+        color: BRAND.tierra,
+        margin: 0,
+        lineHeight: 1,
+      },
+      brandSub: {
+        fontFamily: "Inter, system-ui, sans-serif",
+        fontWeight: 600,
+        letterSpacing: "0.22em",
+        textTransform: "uppercase",
+        color: BRAND.tierra,
+        margin: 0,
+      },
+      card: {
+        background: BRAND.blanco,
+        border: `1px solid ${BRAND.arena}`,
+        borderRadius: 24,
+        padding: 22,
+        boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+      },
+      h3: {
+        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+        fontWeight: 900,
+        color: BRAND.tierra,
+        textAlign: "center",
+        margin: "8px 0 14px",
+        fontSize: 30,
+      },
+      label: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+        fontWeight: 600,
+        color: BRAND.carbon,
+        fontSize: 18,
+        marginBottom: 8,
+      },
+      input: {
+        width: "100%",
+        padding: "14px 14px",
+        borderRadius: 16,
+        border: `1px solid ${BRAND.arena}`,
+        background: "rgba(240,235,225,0.35)",
+        outline: "none",
+        fontSize: 15,
+      },
+      textarea: {
+        width: "100%",
+        padding: "14px 14px",
+        borderRadius: 16,
+        border: `1px solid ${BRAND.arena}`,
+        background: "rgba(240,235,225,0.35)",
+        outline: "none",
+        fontSize: 15,
+        minHeight: 96,
+        resize: "vertical",
+      },
+      buttonPrimary: {
+        background: BRAND.tierra,
+        color: "#fff",
+        border: "none",
+        padding: "12px 18px",
+        borderRadius: 999,
+        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+        fontWeight: 600,
+        cursor: "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 10,
+        boxShadow: "0 6px 18px rgba(0,0,0,0.10)",
+      },
+      buttonPrimaryDisabled: {
+        opacity: 0.45,
+        cursor: "not-allowed",
+      },
+      buttonGhost: {
+        background: "transparent",
+        color: BRAND.carbon,
+        border: "none",
+        padding: "10px 10px",
+        borderRadius: 12,
+        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+        fontWeight: 600,
+        cursor: "pointer",
+      },
+      buttonSecondary: {
+        background: BRAND.blanco,
+        color: BRAND.carbon,
+        border: `1px solid ${BRAND.arena}`,
+        padding: "12px 18px",
+        borderRadius: 999,
+        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+        fontWeight: 600,
+        cursor: "pointer",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 10,
+      },
+      rowBetween: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 12,
+        marginTop: 14,
+      },
+      infoBox: {
+        background: "rgba(240,235,225,0.55)",
+        border: `1px solid ${BRAND.arena}`,
+        borderRadius: 18,
+        padding: 14,
+        display: "flex",
+        gap: 12,
+        alignItems: "flex-start",
+      },
+      monoArea: {
+        width: "100%",
+        minHeight: 340,
+        padding: 14,
+        borderRadius: 18,
+        border: `1px solid ${BRAND.arena}`,
+        background: "rgba(240,235,225,0.25)",
+        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace",
+        fontSize: 12.5,
+        color: BRAND.carbon,
+        outline: "none",
+        resize: "vertical",
+      },
+      smallNote: {
+        fontSize: 12.5,
+        opacity: 0.75,
+        lineHeight: 1.35,
+      },
+      stepIcon: {
+        width: 56,
+        height: 56,
+        borderRadius: 14,
+        objectFit: "cover",
+        boxShadow: "0 6px 18px rgba(0,0,0,0.10)",
+      },
+      iconChip: {
+        width: 28,
+        height: 28,
+        borderRadius: 10,
+        background: "rgba(197,168,105,0.20)",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flex: "0 0 auto",
+        marginTop: 2,
+      },
+      iconTxt: {
+        fontSize: 16,
+      },
+    };
+  }, []);
+
   const StepHeaderIcon = () => (
-    <div className="flex justify-center mb-8">
-      <img
-        src="icon-tblanco-bgverde.jpg"
-        alt="TRIB & TRIP"
-        className="w-14 h-14 rounded-xl shadow-sm object-cover"
-      />
+    <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
+      <img src="icon-tblanco-bgverde.jpg" alt="TRIB & TRIP" style={styles.stepIcon} />
     </div>
   );
 
-  const canProceedStep1 = Boolean(data.destino?.trim()) && Boolean(data.fechas?.trim());
+  const Icon = ({ name }) => (
+    <span style={styles.iconChip} aria-hidden="true">
+      <span style={styles.iconTxt}>{ICON[name]}</span>
+    </span>
+  );
 
   const renderStep = () => {
     switch (step) {
       case 0:
         return (
-          <div className="animate-fadeIn space-y-8 max-w-2xl mx-auto text-center mt-6" ref={scrollRef}>
-            <div className="flex justify-center mb-4">
-              <div className="h-40 md:h-48 flex flex-col items-center justify-center">
-                <h1 className="text-6xl md:text-8xl font-brand font-black text-[#54614A] tracking-tighter mb-2">
-                  TRIB & TRIP
-                </h1>
-                <h2 className="text-xl md:text-2xl font-body font-medium text-[#54614A] tracking-widest uppercase">
-                  Más que un viaje
-                </h2>
-              </div>
+          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", paddingTop: 10 }}>
+            <div style={{ padding: "18px 0 8px" }}>
+              <h1 style={{ ...styles.brandTitle, fontSize: 68 }}>TRIB & TRIP</h1>
+              <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 8 }}>Más que un viaje</p>
             </div>
 
-            <div className="bg-[#FFFFFF] p-8 md:p-10 rounded-3xl shadow-sm border border-[#F0EBE1] text-left space-y-6">
-              <div className="flex items-start gap-3">
-                <Sparkles className="text-[#C5A869] mt-0.5" size={22} />
-                <p className="text-lg text-[#3C3C3B] font-body leading-relaxed">
-                  Aquí no vas a “montar una ruta perfecta”. Vas a diseñar un viaje que <strong className="font-brand font-medium text-[#54614A]">encaje contigo</strong>:
-                  energía, calma, barrios, y vida real.
+            <div style={{ ...styles.card, textAlign: "left", marginTop: 18 }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+                <Icon name="sparkles" />
+                <p style={{ margin: 0, fontSize: 17, lineHeight: 1.55 }}>
+                  Aquí no vas a “montar una ruta perfecta”. Vas a diseñar un viaje que{" "}
+                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                    encaje contigo
+                  </strong>
+                  : energía, calma, barrios y vida real.
                 </p>
               </div>
 
-              <div className="flex items-start gap-3">
-                <Map className="text-[#C5A869] mt-0.5" size={22} />
-                <p className="text-lg text-[#3C3C3B] font-body leading-relaxed">
-                  Te haré unas preguntas rápidas y, al final, la app creará un <strong className="font-brand font-medium text-[#54614A]">prompt TRIB & TRIP</strong> listo para pegar en ChatGPT o Gemini,
-                  para que esa IA te devuelva un itinerario realista y flexible.
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+                <Icon name="map" />
+                <p style={{ margin: 0, fontSize: 17, lineHeight: 1.55 }}>
+                  Te haré unas preguntas rápidas y, al final, la app creará un{" "}
+                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                    prompt TRIB & TRIP
+                  </strong>{" "}
+                  listo para pegar en ChatGPT o Gemini.
                 </p>
               </div>
 
-              <div className="bg-[#F0EBE1]/40 border border-[#F0EBE1] rounded-2xl p-5 flex gap-3">
-                <ShieldCheck className="text-[#54614A] shrink-0 mt-0.5" size={20} />
-                <p className="text-[#3C3C3B] font-body leading-relaxed">
-                  <strong className="font-brand font-medium text-[#54614A]">Privacidad:</strong> esta mini-app no guarda nada. Tus respuestas se quedan en tu navegador.
-                  Solo genera texto (el prompt) para que tú decidas si lo copias y lo usas.
+              <div style={styles.infoBox}>
+                <Icon name="shield" />
+                <p style={{ margin: 0, lineHeight: 1.55 }}>
+                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                    Privacidad:
+                  </strong>{" "}
+                  esta mini-app no guarda nada. Tus respuestas se quedan en tu navegador. Solo genera texto (el prompt)
+                  para que tú decidas si lo copias y lo usas.
                 </p>
               </div>
 
-              <div className="pt-2 flex justify-center">
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
                 <button
                   onClick={handleNext}
-                  className="bg-[#54614A] text-white font-brand font-medium px-8 py-4 rounded-full flex items-center gap-3 hover:bg-[#3C3C3B] transition-colors shadow-md"
+                  style={styles.buttonPrimary}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
                 >
-                  Empezar tu diseño <ArrowRight size={20} />
+                  Empezar tu diseño <span aria-hidden="true">{ICON.arrow}</span>
                 </button>
               </div>
             </div>
@@ -230,50 +433,48 @@ FIN DEL PROMPT`;
 
       case 1:
         return (
-          <div className="animate-fadeIn max-w-2xl mx-auto space-y-6" ref={scrollRef}>
+          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
             <StepHeaderIcon />
-            <h3 className="text-3xl font-brand font-black text-[#54614A] text-center">Lo básico de tu camino</h3>
+            <h3 style={styles.h3}>Lo básico de tu camino</h3>
 
-            <div className="bg-[#FFFFFF] p-6 md:p-8 rounded-3xl shadow-sm border border-[#F0EBE1] space-y-6">
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Map size={20} className="text-[#54614A]" /> ¿Cuál es tu destino?
-                </label>
+            <div style={styles.card}>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="map" /> ¿Cuál es tu destino?
+                </div>
                 <input
-                  type="text"
                   value={data.destino}
                   onChange={(e) => updateData("destino", e.target.value)}
                   placeholder="Ej: Boston, Estados Unidos"
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none transition-all"
+                  style={styles.input}
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Calendar size={20} className="text-[#54614A]" /> ¿En qué fechas viajas?
-                </label>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="calendar" /> ¿En qué fechas viajas?
+                </div>
                 <input
-                  type="text"
                   value={data.fechas}
                   onChange={(e) => updateData("fechas", e.target.value)}
                   placeholder="Ej: 14 al 19 de Marzo"
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none transition-all"
+                  style={styles.input}
                 />
                 {(!data.destino?.trim() || !data.fechas?.trim()) && (
-                  <p className="text-sm font-body text-[#3C3C3B]/70">
+                  <div style={{ marginTop: 8, ...styles.smallNote }}>
                     * Para seguir, necesitamos <strong>destino</strong> y <strong>fechas</strong>.
-                  </p>
+                  </div>
                 )}
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Users size={20} className="text-[#54614A]" /> ¿Viajas solo o acompañado?
-                </label>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="users" /> ¿Viajas solo o acompañado?
+                </div>
                 <select
                   value={data.acompanantes}
                   onChange={(e) => updateData("acompanantes", e.target.value)}
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl outline-none focus:ring-2 focus:ring-[#C5A869]"
+                  style={styles.input}
                 >
                   <option>Solo</option>
                   <option>En pareja</option>
@@ -282,14 +483,14 @@ FIN DEL PROMPT`;
                 </select>
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Plane size={20} className="text-[#54614A]" /> Estructura del viaje
-                </label>
+              <div>
+                <div style={styles.label}>
+                  <Icon name="plane" /> Estructura del viaje
+                </div>
                 <select
                   value={data.estructura}
                   onChange={(e) => updateData("estructura", e.target.value)}
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl outline-none focus:ring-2 focus:ring-[#C5A869]"
+                  style={styles.input}
                 >
                   <option>Base única (desde donde me muevo)</option>
                   <option>Ruta definida (varias paradas marcadas)</option>
@@ -298,20 +499,26 @@ FIN DEL PROMPT`;
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-2">
-              <button
-                onClick={handleBack}
-                className="text-[#3C3C3B] font-brand font-medium hover:text-[#54614A] px-4 py-2 transition-colors"
-              >
+            <div style={styles.rowBetween}>
+              <button style={styles.buttonGhost} onClick={handleBack}>
                 Atrás
               </button>
 
               <button
                 onClick={handleNext}
                 disabled={!canProceedStep1}
-                className="bg-[#54614A] text-white font-brand font-medium px-8 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3C3C3B] transition-colors disabled:opacity-50 disabled:hover:bg-[#54614A]"
+                style={{
+                  ...styles.buttonPrimary,
+                  ...(canProceedStep1 ? null : styles.buttonPrimaryDisabled),
+                }}
+                onMouseEnter={(e) => {
+                  if (canProceedStep1) e.currentTarget.style.background = BRAND.carbon;
+                }}
+                onMouseLeave={(e) => {
+                  if (canProceedStep1) e.currentTarget.style.background = BRAND.tierra;
+                }}
               >
-                Siguiente paso <ArrowRight size={18} />
+                Siguiente paso <span aria-hidden="true">{ICON.arrow}</span>
               </button>
             </div>
           </div>
@@ -319,61 +526,60 @@ FIN DEL PROMPT`;
 
       case 2:
         return (
-          <div className="animate-fadeIn max-w-2xl mx-auto space-y-6" ref={scrollRef}>
+          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
             <StepHeaderIcon />
-            <h3 className="text-3xl font-brand font-black text-[#54614A] text-center">Tus anclajes fijos</h3>
+            <h3 style={styles.h3}>Tus anclajes fijos</h3>
 
-            <div className="bg-[#FFFFFF] p-6 md:p-8 rounded-3xl shadow-sm border border-[#F0EBE1] space-y-6">
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Clock size={20} className="text-[#54614A]" /> Vuelos u horarios ya definidos
-                </label>
+            <div style={styles.card}>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="clock" /> Vuelos u horarios ya definidos
+                </div>
                 <textarea
                   value={data.vuelos}
                   onChange={(e) => updateData("vuelos", e.target.value)}
                   placeholder="Ej: Llego el 14 a las 10:00, regreso el 19 a las 20:00"
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none h-24 resize-none transition-all"
+                  style={styles.textarea}
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Home size={20} className="text-[#54614A]" /> Alojamiento o zona prevista
-                </label>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="home" /> Alojamiento o zona prevista
+                </div>
                 <input
-                  type="text"
                   value={data.alojamiento}
                   onChange={(e) => updateData("alojamiento", e.target.value)}
                   placeholder="Ej: Centro / Back Bay / hostel..."
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none transition-all"
+                  style={styles.input}
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <CheckCircle2 size={20} className="text-[#54614A]" /> Reservas cerradas sí o sí
-                </label>
+              <div>
+                <div style={styles.label}>
+                  <Icon name="check" /> Reservas cerradas sí o sí
+                </div>
                 <textarea
                   value={data.reservas}
                   onChange={(e) => updateData("reservas", e.target.value)}
                   placeholder="Ej: Partido / museo / tour..."
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none h-24 resize-none transition-all"
+                  style={styles.textarea}
                 />
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-2">
-              <button
-                onClick={handleBack}
-                className="text-[#3C3C3B] font-brand font-medium hover:text-[#54614A] px-4 py-2 transition-colors"
-              >
+            <div style={styles.rowBetween}>
+              <button style={styles.buttonGhost} onClick={handleBack}>
                 Atrás
               </button>
+
               <button
                 onClick={handleNext}
-                className="bg-[#54614A] text-white font-brand font-medium px-8 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3C3C3B] transition-colors"
+                style={styles.buttonPrimary}
+                onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
               >
-                Siguiente paso <ArrowRight size={18} />
+                Siguiente paso <span aria-hidden="true">{ICON.arrow}</span>
               </button>
             </div>
           </div>
@@ -381,53 +587,62 @@ FIN DEL PROMPT`;
 
       case 3:
         return (
-          <div className="animate-fadeIn max-w-2xl mx-auto space-y-6" ref={scrollRef}>
+          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
             <StepHeaderIcon />
-            <h3 className="text-3xl font-brand font-black text-[#54614A] text-center">Tu energía e intención</h3>
+            <h3 style={styles.h3}>Tu energía e intención</h3>
 
-            <div className="bg-[#FFFFFF] p-6 md:p-8 rounded-3xl shadow-sm border border-[#F0EBE1] space-y-6">
-              <div className="space-y-4">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Battery size={20} className="text-[#54614A]" /> Nivel de energía deseado
-                </label>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {["Bajo (Relax)", "Medio (Equilibrado)", "Alto (Exploración)"].map((lvl) => (
-                    <button
-                      key={lvl}
-                      onClick={() => updateData("energia", lvl)}
-                      className={`flex-1 py-3.5 rounded-2xl border font-brand font-medium transition-all ${
-                        data.energia === lvl
-                          ? "bg-[#54614A] text-white border-[#54614A] shadow-md"
-                          : "bg-[#F0EBE1]/30 border-[#F0EBE1] text-[#3C3C3B] hover:bg-[#F0EBE1]"
-                      }`}
-                    >
-                      {lvl}
-                    </button>
-                  ))}
+            <div style={styles.card}>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="battery" /> Nivel de energía deseado
+                </div>
+
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  {["Bajo (Relax)", "Medio (Equilibrado)", "Alto (Exploración)"].map((lvl) => {
+                    const active = data.energia === lvl;
+                    return (
+                      <button
+                        key={lvl}
+                        onClick={() => updateData("energia", lvl)}
+                        style={{
+                          flex: "1 1 180px",
+                          padding: "12px 14px",
+                          borderRadius: 16,
+                          border: `1px solid ${active ? BRAND.tierra : BRAND.arena}`,
+                          background: active ? BRAND.tierra : "rgba(240,235,225,0.35)",
+                          color: active ? "#fff" : BRAND.carbon,
+                          fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {lvl}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Wallet size={20} className="text-[#54614A]" /> Presupuesto diario (en destino)
-                </label>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="wallet" /> Presupuesto diario (en destino)
+                </div>
                 <input
-                  type="text"
                   value={data.presupuesto}
                   onChange={(e) => updateData("presupuesto", e.target.value)}
                   placeholder="Ej: 50€/día, mochilero, medio..."
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none transition-all"
+                  style={styles.input}
                 />
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Users size={20} className="text-[#54614A]" /> ¿Quieres integración local?
-                </label>
+              <div style={{ marginBottom: 18 }}>
+                <div style={styles.label}>
+                  <Icon name="users" /> ¿Quieres integración local?
+                </div>
                 <select
                   value={data.integracion}
                   onChange={(e) => updateData("integracion", e.target.value)}
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl outline-none focus:ring-2 focus:ring-[#C5A869]"
+                  style={styles.input}
                 >
                   <option>Sí, quiero conectar con locales y su vida diaria</option>
                   <option>A medias, turismo con toques locales</option>
@@ -435,31 +650,31 @@ FIN DEL PROMPT`;
                 </select>
               </div>
 
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 text-[#3C3C3B] font-brand font-medium text-lg">
-                  <Heart size={20} className="text-[#54614A]" /> ¿Cómo estás emocionalmente ahora?
-                </label>
+              <div>
+                <div style={styles.label}>
+                  <Icon name="heart" /> ¿Cómo estás emocionalmente ahora?
+                </div>
                 <textarea
                   value={data.estadoEmocional}
                   onChange={(e) => updateData("estadoEmocional", e.target.value)}
                   placeholder="Ej: agotado por el trabajo, necesito paz..."
-                  className="w-full p-4 bg-[#F0EBE1]/30 font-body text-[#3C3C3B] border border-[#F0EBE1] rounded-2xl focus:ring-2 focus:ring-[#C5A869] outline-none h-24 resize-none transition-all"
+                  style={styles.textarea}
                 />
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-2">
-              <button
-                onClick={handleBack}
-                className="text-[#3C3C3B] font-brand font-medium hover:text-[#54614A] px-4 py-2 transition-colors"
-              >
+            <div style={styles.rowBetween}>
+              <button style={styles.buttonGhost} onClick={handleBack}>
                 Atrás
               </button>
+
               <button
                 onClick={handleNext}
-                className="bg-[#54614A] text-white font-brand font-medium px-8 py-3.5 rounded-full flex items-center gap-2 hover:bg-[#3C3C3B] transition-colors"
+                style={styles.buttonPrimary}
+                onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
               >
-                Revisar resumen <ArrowRight size={18} />
+                Revisar resumen <span aria-hidden="true">{ICON.arrow}</span>
               </button>
             </div>
           </div>
@@ -467,105 +682,119 @@ FIN DEL PROMPT`;
 
       case 4:
         return (
-          <div className="animate-fadeIn max-w-2xl mx-auto space-y-6" ref={scrollRef}>
+          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
             <StepHeaderIcon />
-            <h3 className="text-3xl font-brand font-black text-[#54614A] text-center">Así entendemos tu viaje</h3>
+            <h3 style={styles.h3}>Así entendemos tu viaje</h3>
 
-            <div className="bg-[#FFFFFF] p-8 rounded-3xl shadow-sm border border-[#F0EBE1] space-y-6">
-              <ul className="space-y-5 text-[#3C3C3B] font-body">
-                <li className="flex gap-4 items-start">
-                  <Map className="text-[#C5A869] shrink-0 mt-0.5" />
+            <div style={styles.card}>
+              <div style={{ display: "grid", gap: 12 }}>
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <Icon name="map" />
                   <div>
-                    <strong className="font-brand font-medium text-[#54614A]">Destino y fechas:</strong>
-                    <br />
-                    {data.destino} ({data.fechas})
+                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                      Destino y fechas:
+                    </div>
+                    <div>{data.destino} ({data.fechas})</div>
                   </div>
-                </li>
+                </div>
 
-                <li className="flex gap-4 items-start">
-                  <Users className="text-[#C5A869] shrink-0 mt-0.5" />
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <Icon name="users" />
                   <div>
-                    <strong className="font-brand font-medium text-[#54614A]">Compañía y formato:</strong>
-                    <br />
-                    {data.acompanantes} — {data.estructura}
+                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                      Compañía y formato:
+                    </div>
+                    <div>{data.acompanantes} — {data.estructura}</div>
                   </div>
-                </li>
+                </div>
 
                 {data.vuelos?.trim() && (
-                  <li className="flex gap-4 items-start">
-                    <Clock className="text-[#C5A869] shrink-0 mt-0.5" />
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <Icon name="clock" />
                     <div>
-                      <strong className="font-brand font-medium text-[#54614A]">Vuelos / horarios:</strong>
-                      <br />
-                      {data.vuelos}
+                      <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                        Vuelos / horarios:
+                      </div>
+                      <div>{data.vuelos}</div>
                     </div>
-                  </li>
+                  </div>
                 )}
 
                 {data.alojamiento?.trim() && (
-                  <li className="flex gap-4 items-start">
-                    <Home className="text-[#C5A869] shrink-0 mt-0.5" />
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <Icon name="home" />
                     <div>
-                      <strong className="font-brand font-medium text-[#54614A]">Alojamiento / zona:</strong>
-                      <br />
-                      {data.alojamiento}
+                      <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                        Alojamiento / zona:
+                      </div>
+                      <div>{data.alojamiento}</div>
                     </div>
-                  </li>
+                  </div>
                 )}
 
                 {data.reservas?.trim() && (
-                  <li className="flex gap-4 items-start">
-                    <CheckCircle2 className="text-[#C5A869] shrink-0 mt-0.5" />
+                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                    <Icon name="check" />
                     <div>
-                      <strong className="font-brand font-medium text-[#54614A]">Anclajes fijos:</strong>
-                      <br />
-                      {data.reservas}
+                      <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                        Anclajes fijos:
+                      </div>
+                      <div>{data.reservas}</div>
                     </div>
-                  </li>
+                  </div>
                 )}
 
-                <li className="flex gap-4 items-start">
-                  <Battery className="text-[#C5A869] shrink-0 mt-0.5" />
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <Icon name="battery" />
                   <div>
-                    <strong className="font-brand font-medium text-[#54614A]">Energía y estado:</strong>
-                    <br />
-                    {data.energia}
-                    {data.estadoEmocional?.trim() ? ` — ${data.estadoEmocional}` : ""}
+                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                      Energía y estado:
+                    </div>
+                    <div>
+                      {data.energia}
+                      {data.estadoEmocional?.trim() ? ` — ${data.estadoEmocional}` : ""}
+                    </div>
                   </div>
-                </li>
+                </div>
 
-                <li className="flex gap-4 items-start">
-                  <Wallet className="text-[#C5A869] shrink-0 mt-0.5" />
+                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <Icon name="wallet" />
                   <div>
-                    <strong className="font-brand font-medium text-[#54614A]">Presupuesto e integración:</strong>
-                    <br />
-                    {data.presupuesto?.trim() ? data.presupuesto : "No definido"} — {data.integracion}
+                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
+                      Presupuesto e integración:
+                    </div>
+                    <div>{data.presupuesto?.trim() ? data.presupuesto : "No definido"} — {data.integracion}</div>
                   </div>
-                </li>
-              </ul>
+                </div>
+              </div>
 
-              <div className="pt-8 mt-4 border-t border-[#F0EBE1] text-center space-y-5">
-                <p className="text-xl font-brand font-medium text-[#3C3C3B]">
-                  Perfecto. Ahora voy a generar tu <strong className="text-[#54614A]">prompt TRIB & TRIP</strong>.
+              <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${BRAND.arena}`, textAlign: "center" }}>
+                <p style={{ margin: 0, fontSize: 18, fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700 }}>
+                  Perfecto. Ahora voy a generar tu <span style={{ color: BRAND.tierra }}>prompt TRIB & TRIP</span>.
                 </p>
-                <p className="text-[#3C3C3B] font-body leading-relaxed">
-                  Ese texto es lo que pegarás en ChatGPT o Gemini para que te devuelvan un itinerario
-                  realista, por zonas, con calma, y con planes alternativos.
+                <p style={{ margin: "10px 0 0", lineHeight: 1.55 }}>
+                  Ese texto es lo que pegarás en ChatGPT o Gemini para que te devuelvan un itinerario realista, por zonas,
+                  con calma, y con planes alternativos.
                 </p>
 
-                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 14 }}>
                   <button
                     onClick={() => setStep(1)}
-                    className="px-6 py-3.5 rounded-full bg-[#F0EBE1]/60 text-[#3C3C3B] font-brand font-medium hover:bg-[#F0EBE1] transition-colors"
+                    style={{
+                      ...styles.buttonSecondary,
+                      background: "rgba(240,235,225,0.60)",
+                    }}
                   >
                     Modificar datos
                   </button>
 
                   <button
                     onClick={generatePromptAndGo}
-                    className="bg-[#54614A] text-white font-brand font-medium px-8 py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-[#3C3C3B] transition-colors shadow-md"
+                    style={styles.buttonPrimary}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
                   >
-                    Sí, generar mi Prompt <Sparkles size={18} />
+                    Sí, generar mi Prompt <span aria-hidden="true">{ICON.sparkles}</span>
                   </button>
                 </div>
               </div>
@@ -575,80 +804,74 @@ FIN DEL PROMPT`;
 
       case 5:
         return (
-          <div className="animate-fadeIn max-w-3xl mx-auto space-y-8 pb-12" ref={scrollRef}>
+          <div ref={scrollRef} style={{ maxWidth: 860, margin: "0 auto" }}>
             <StepHeaderIcon />
 
-            <div className="text-center space-y-4 mb-8">
-              <h2 className="text-3xl font-brand font-black text-[#54614A]">Tu prompt personalizado</h2>
-              <p className="text-[#3C3C3B] font-body max-w-2xl mx-auto text-lg leading-relaxed">
-                Este texto <strong className="font-brand font-medium text-[#54614A]">no es tu itinerario</strong>.
-                Es el prompt que vas a pegar en una IA para que te lo construya.
+            <div style={{ textAlign: "center", marginBottom: 14 }}>
+              <h3 style={{ ...styles.h3, marginBottom: 8 }}>Tu prompt personalizado</h3>
+              <p style={{ margin: 0, maxWidth: 760, marginInline: "auto", lineHeight: 1.55 }}>
+                Este texto <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                  no es tu itinerario
+                </strong>
+                . Es el prompt que vas a pegar en una IA para que te lo construya.
                 <br />
-                <span className="text-[#3C3C3B]/80">
-                  Consejo: genera el itinerario en <strong>ChatGPT</strong> y en <strong>Gemini</strong>, compara y quédate con lo mejor de cada uno.
+                <span style={{ opacity: 0.8 }}>
+                  Consejo: genera el itinerario en <strong>ChatGPT</strong> y en <strong>Gemini</strong>, compara y quédate con lo mejor.
                 </span>
               </p>
             </div>
 
-            <div className="bg-[#FFFFFF] p-6 md:p-8 rounded-3xl shadow-lg border border-[#F0EBE1] relative space-y-6">
-              <div className="bg-[#F0EBE1]/40 border border-[#F0EBE1] rounded-2xl p-5 flex gap-3">
-                <ShieldCheck className="text-[#54614A] shrink-0 mt-0.5" size={20} />
-                <p className="text-[#3C3C3B] font-body leading-relaxed">
-                  <strong className="font-brand font-medium text-[#54614A]">Privacidad:</strong> aquí no se guarda nada.
-                  Si cierras esta pestaña, se pierde el contenido. Si quieres conservarlo, copia el prompt.
+            <div style={{ ...styles.card, padding: 18 }}>
+              <div style={styles.infoBox}>
+                <Icon name="shield" />
+                <p style={{ margin: 0, lineHeight: 1.55 }}>
+                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                    Privacidad:
+                  </strong>{" "}
+                  aquí no se guarda nada. Si cierras esta pestaña, se pierde el contenido. Si quieres conservarlo, copia el prompt.
                 </p>
               </div>
 
-              <textarea
-                readOnly
-                value={generatedPrompt}
-                className="w-full h-96 p-5 bg-[#F0EBE1]/20 text-[#3C3C3B] font-mono text-sm border border-[#F0EBE1] rounded-2xl focus:outline-none resize-y"
-              />
+              <div style={{ marginTop: 14 }}>
+                <textarea readOnly value={generatedPrompt} style={styles.monoArea} />
+              </div>
 
-              <div className="flex flex-col md:flex-row items-center justify-center gap-3 pt-2">
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
                 <button
                   onClick={copyToClipboard}
-                  className={`px-7 py-3.5 rounded-full font-brand font-medium flex items-center gap-2 transition-all shadow-md ${
-                    copied ? "bg-[#C5A869] text-white scale-[1.02]" : "bg-[#54614A] text-white hover:bg-[#3C3C3B]"
-                  }`}
+                  style={{
+                    ...styles.buttonPrimary,
+                    background: copied ? BRAND.ocre : BRAND.tierra,
+                    transform: copied ? "scale(1.01)" : "none",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = copied ? BRAND.ocre : BRAND.carbon)}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = copied ? BRAND.ocre : BRAND.tierra)}
                 >
-                  {copied ? <CheckCircle2 size={18} /> : <Copy size={18} />}
+                  <span aria-hidden="true">{copied ? ICON.check : ICON.copy}</span>
                   {copied ? "¡Copiado!" : "Copiar prompt"}
                 </button>
 
-                <button
-                  onClick={openChatGPT}
-                  className="px-7 py-3.5 rounded-full font-brand font-medium flex items-center gap-2 border border-[#F0EBE1] bg-white text-[#3C3C3B] hover:bg-[#F0EBE1]/40 transition-colors"
-                >
-                  Abrir ChatGPT <ExternalLink size={18} />
+                <button onClick={openChatGPT} style={styles.buttonSecondary}>
+                  Abrir ChatGPT <span aria-hidden="true">{ICON.link}</span>
                 </button>
 
-                <button
-                  onClick={openGemini}
-                  className="px-7 py-3.5 rounded-full font-brand font-medium flex items-center gap-2 border border-[#F0EBE1] bg-white text-[#3C3C3B] hover:bg-[#F0EBE1]/40 transition-colors"
-                >
-                  Abrir Gemini <ExternalLink size={18} />
+                <button onClick={openGemini} style={styles.buttonSecondary}>
+                  Abrir Gemini <span aria-hidden="true">{ICON.link}</span>
                 </button>
               </div>
 
-              <div className="text-center text-sm font-body text-[#3C3C3B]/70">
+              <div style={{ marginTop: 10, textAlign: "center", ...styles.smallNote }}>
                 Nota: por límites de cada plataforma, no siempre se puede “autoponer” el prompt al abrir la web.
                 Por eso aquí tienes <strong>copiar</strong> + <strong>abrir</strong> en 2 clics.
               </div>
             </div>
 
-            <div className="flex justify-center gap-8 mt-8">
-              <button
-                onClick={() => setStep(4)}
-                className="text-[#54614A] font-brand font-medium hover:text-[#3C3C3B] transition-colors"
-              >
+            <div style={{ display: "flex", justifyContent: "center", gap: 18, marginTop: 16, flexWrap: "wrap" }}>
+              <button style={styles.buttonGhost} onClick={() => setStep(4)}>
                 Volver atrás
               </button>
-              <button
-                onClick={restart}
-                className="flex items-center gap-2 text-[#54614A] font-brand font-medium hover:text-[#3C3C3B] transition-colors"
-              >
-                <RefreshCcw size={18} /> Diseñar otro camino
+              <button style={styles.buttonGhost} onClick={restart}>
+                <span aria-hidden="true">{ICON.refresh}</span> Diseñar otro camino
               </button>
             </div>
           </div>
@@ -659,32 +882,23 @@ FIN DEL PROMPT`;
     }
   };
 
+  const progressPct = step > 0 && step < 5 ? (step / 4) * 100 : 0;
+
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,900&family=Inter:wght@400;500;600&display=swap');
-        .font-brand { font-family: 'DM Sans', sans-serif; }
-        .font-body { font-family: 'Inter', sans-serif; }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn { animation: fadeIn 220ms ease-out; }
-      `}</style>
-
-      <div className="min-h-screen bg-[#F0EBE1] font-body selection:bg-[#C5A869] selection:text-white p-4 md:p-8">
+    <div style={styles.page}>
+      <div style={styles.container}>
         {step > 0 && step < 5 && (
-          <div className="max-w-2xl mx-auto mb-10 h-1.5 bg-[#FFFFFF] rounded-full overflow-hidden shadow-inner">
-            <div
-              className="h-full bg-[#C5A869] transition-all duration-500 ease-out"
-              style={{ width: `${(step / 4) * 100}%` }}
-            />
+          <div style={styles.progressWrap}>
+            <div style={styles.progressBar(progressPct)} />
           </div>
         )}
-
         {renderStep()}
       </div>
-    </>
+    </div>
   );
 }
+
+// Montaje (esto es lo que te faltará si copias a Pages sin bundler)
+const rootEl = document.getElementById("root");
+const root = ReactDOM.createRoot(rootEl);
+root.render(<App />);
