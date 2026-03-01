@@ -128,7 +128,6 @@ Entrega en este formato (obligatorio):
 
 Restricciones:
 	•	No inventes horarios si no los he dado.
-	•	No afirmes recorridos exactos de eventos (desfiles, celebraciones, transportes especiales, etc.) si no han sido proporcionados oficialmente. Indica que deben verificarse en la web oficial correspondiente unos días antes.
 	•	Si algo es incierto, da rangos y di que hay que verificar.
 	•	Evita listas interminables: prioriza calidad y coherencia.
 FIN DEL PROMPT`;
@@ -384,18 +383,17 @@ FIN DEL PROMPT`;
               <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 8 }}>Más que un viaje</p>
             </div>
 
-			<div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
-			  <Icon name="sparkles" />
-			  <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65 }}>
-			    <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-			      No vamos a planear un viaje.
-			    </strong>
-			    <br />
-			    Vamos a diseñar cómo quieres vivirlo.
-			    <br />
-			    No es una lista turística. Es tu energía, tus barrios, tu ritmo y tu forma de estar en el mundo.
-			  </p>
-			</div>
+            <div style={{ ...styles.card, textAlign: "left", marginTop: 18 }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+                <Icon name="sparkles" />
+                <p style={{ margin: 0, fontSize: 17, lineHeight: 1.55 }}>
+                  Aquí no vas a “montar una ruta perfecta”. Vas a diseñar un viaje que{" "}
+                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                    encaje contigo
+                  </strong>
+                  : energía, calma, barrios y vida real.
+                </p>
+              </div>
 
               <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <Icon name="map" />
