@@ -389,21 +389,52 @@ FIN DEL PROMPT`;
 		      <div style={{ ...styles.card, textAlign: "left", marginTop: 28, padding: 32 }}>
 		
 		        {/* BLOQUE 1 */}
-		        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 28 }}>
-		          <Icon name="sparkles" />
-		          <div style={{ lineHeight: 1.7, fontSize: 18 }}>
-		            <div style={{ 
-		              fontWeight: 700, 
-		              color: BRAND.tierra, 
-		              fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-		              marginBottom: 6 
-		            }}>
-		              No vamos a planear un viaje.
-		            </div>
-		            <div>Vamos a diseñar cómo quieres vivirlo.</div>
-		            <div style={{ marginTop: 6 }}>Energía. Ritmo. Barrios reales.</div>
-		          </div>
-		        </div>
+		        <div style={{ 
+					  textAlign: "center", 
+					  marginBottom: 32 
+					}}>
+					
+					  <div style={{
+					    width: 56,
+					    height: 56,
+					    margin: "0 auto 18px",
+					    borderRadius: 16,
+					    background: "rgba(84,97,74,0.12)",
+					    display: "flex",
+					    alignItems: "center",
+					    justifyContent: "center",
+					    fontSize: 24
+					  }}>
+					    ✨
+					  </div>
+					
+					  <div style={{ 
+					    fontSize: 20,
+					    fontWeight: 700,
+					    color: BRAND.tierra,
+					    fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+					    marginBottom: 10
+					  }}>
+					    No vamos a planear un viaje.
+					  </div>
+					
+					  <div style={{ 
+					    fontSize: 18,
+					    lineHeight: 1.6,
+					    color: BRAND.carbon
+					  }}>
+					    Vamos a diseñar cómo quieres vivirlo.
+					  </div>
+					
+					  <div style={{ 
+					    marginTop: 10,
+					    fontSize: 16,
+					    opacity: 0.75
+					  }}>
+					    Energía. Ritmo. Barrios reales.
+					  </div>
+					
+					</div>
 		
 		        {/* BLOQUE 2 */}
 		        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 34 }}>
