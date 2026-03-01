@@ -128,6 +128,7 @@ Entrega en este formato (obligatorio):
 
 Restricciones:
 	•	No inventes horarios si no los he dado.
+	•	Si propones eventos/horarios concretos (partidos, tours, reservas, etc.), solo confirma lo que está en mis datos. Si no, márcalo como “a confirmar” y sugiere verificar en fuentes oficiales.
 	•	Si algo es incierto, da rangos y di que hay que verificar.
 	•	Evita listas interminables: prioriza calidad y coherencia.
 FIN DEL PROMPT`;
@@ -387,11 +388,12 @@ FIN DEL PROMPT`;
               <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <Icon name="sparkles" />
                 <p style={{ margin: 0, fontSize: 17, lineHeight: 1.55 }}>
-                  Aquí no vas a “montar una ruta perfecta”. Vas a diseñar un viaje que{" "}
                   <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-                    encaje contigo
-                  </strong>
-                  : energía, calma, barrios y vida real.
+                    No vamos a planear un viaje.
+                  </strong>{" "}
+                  Vamos a diseñar cómo quieres vivirlo.
+                  <br />
+                  No es una lista turística. Es tu energía, tus barrios, tu ritmo y tu forma de estar en el mundo.
                 </p>
               </div>
 
@@ -810,7 +812,8 @@ FIN DEL PROMPT`;
             <div style={{ textAlign: "center", marginBottom: 14 }}>
               <h3 style={{ ...styles.h3, marginBottom: 8 }}>Tu prompt personalizado</h3>
               <p style={{ margin: 0, maxWidth: 760, marginInline: "auto", lineHeight: 1.55 }}>
-                Este texto <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+                Este texto{" "}
+                <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
                   no es tu itinerario
                 </strong>
                 . Es el prompt que vas a pegar en una IA para que te lo construya.
