@@ -379,33 +379,37 @@ FIN DEL PROMPT`;
     switch (step) {
       case 0:
         return (
-          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", paddingTop: 10 }}>
-		      <div style={{ padding: "18px 0 8px" }}>
+          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", paddingTop: 20 }}>
+		      
+		      <div style={{ padding: "24px 0 12px" }}>
 		        <h1 style={{ ...styles.brandTitle, fontSize: 68 }}>TRIB & TRIP</h1>
-		        <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 8 }}>Más que un viaje</p>
+		        <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 10 }}>Más que un viaje</p>
 		      </div>
 		
-		      <div style={{ ...styles.card, textAlign: "left", marginTop: 22 }}>
+		      <div style={{ ...styles.card, textAlign: "left", marginTop: 28, padding: 32 }}>
 		
 		        {/* BLOQUE 1 */}
-		        <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 22 }}>
+		        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 28 }}>
 		          <Icon name="sparkles" />
-		          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65 }}>
-		            <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+		          <div style={{ lineHeight: 1.7, fontSize: 18 }}>
+		            <div style={{ 
+		              fontWeight: 700, 
+		              color: BRAND.tierra, 
+		              fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
+		              marginBottom: 6 
+		            }}>
 		              No vamos a planear un viaje.
-		            </strong>
-		            <br />
-		            Vamos a diseñar cómo quieres vivirlo.
-		            <br />
-		            Energía. Ritmo. Barrios reales.
-		          </p>
+		            </div>
+		            <div>Vamos a diseñar cómo quieres vivirlo.</div>
+		            <div style={{ marginTop: 6 }}>Energía. Ritmo. Barrios reales.</div>
+		          </div>
 		        </div>
 		
 		        {/* BLOQUE 2 */}
-		        <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 18 }}>
+		        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 34 }}>
 		          <Icon name="map" />
-		          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65 }}>
-		            Te haré unas preguntas rápidas y generarás un{" "}
+		          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.7 }}>
+		            Responde unas preguntas rápidas y genera un{" "}
 		            <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
 		              prompt TRIB & TRIP
 		            </strong>{" "}
@@ -413,25 +417,36 @@ FIN DEL PROMPT`;
 		          </p>
 		        </div>
 		
-		        {/* PRIVACIDAD SUTIL */}
-		        <div style={{ marginTop: 8, marginBottom: 26, fontSize: 13, opacity: 0.65 }}>
-		          Nada se guarda. Todo ocurre en tu navegador.
-		        </div>
-		
-		        {/* BOTÓN MEJORADO */}
-		        <div style={{ display: "flex", justifyContent: "center" }}>
+		        {/* BOTÓN */}
+		        <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
 		          <button
 		            onClick={handleNext}
 		            style={{
 		              ...styles.buttonPrimary,
-		              padding: "14px 28px",
-		              fontSize: 16,
+		              padding: "16px 36px",
+		              fontSize: 17,
+		              letterSpacing: "0.5px",
+		              boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
 		            }}
 		            onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
 		            onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
 		          >
-		            Diseñar mi itinerario <span aria-hidden="true">{ICON.arrow}</span>
+		            Crear mi itinerario <span aria-hidden="true">{ICON.arrow}</span>
 		          </button>
+		        </div>
+		
+		        {/* PRIVACIDAD SUTIL DEBAJO */}
+		        <div style={{ 
+		          display: "flex", 
+		          justifyContent: "center", 
+		          alignItems: "center", 
+		          gap: 8, 
+		          marginTop: 22,
+		          fontSize: 13,
+		          opacity: 0.55 
+		        }}>
+		          <span style={{ fontSize: 14 }}>{ICON.shield}</span>
+		          <span>Nada se guarda. Todo ocurre en tu navegador.</span>
 		        </div>
 		
 		      </div>
