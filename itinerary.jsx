@@ -399,13 +399,13 @@ FIN DEL PROMPT`;
 					    height: 56,
 					    margin: "0 auto 18px",
 					    borderRadius: 16,
-					    background: "rgba(84,97,74,0.12)",
+					    background: "rgba(84,97,74,0.18)",
 					    display: "flex",
 					    alignItems: "center",
 					    justifyContent: "center",
 					    fontSize: 24
 					  }}>
-					    ✨
+					    🧭
 					  </div>
 					
 					  <div style={{ 
