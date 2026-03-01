@@ -34,6 +34,7 @@ const ICON = {
   calendar: "📅",
   users: "👤",
   plane: "✈️",
+  compass: "🧭",
   clock: "⏰",
   home: "🏠",
   check: "✅",
@@ -379,58 +380,62 @@ FIN DEL PROMPT`;
       case 0:
         return (
           <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", paddingTop: 10 }}>
-            <div style={{ padding: "18px 0 8px" }}>
-              <h1 style={{ ...styles.brandTitle, fontSize: 68 }}>TRIB & TRIP</h1>
-              <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 8 }}>Más que un viaje</p>
-            </div>
-
-            <div style={{ ...styles.card, textAlign: "left", marginTop: 18 }}>
-              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
-                <Icon name="sparkles" />
-                <p style={{ margin: 0, fontSize: 17, lineHeight: 1.55 }}>
-                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-                    No vamos a planear un viaje.
-                  </strong>{" "}
-                  Vamos a diseñar cómo quieres vivirlo.
-                  <br />
-                  No es una lista turística. Es tu energía, tus barrios, tu ritmo y tu forma de estar en el mundo.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
-                <Icon name="map" />
-                <p style={{ margin: 0, fontSize: 17, lineHeight: 1.55 }}>
-                  Te haré unas preguntas rápidas y, al final, la app creará un{" "}
-                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-                    prompt TRIB & TRIP
-                  </strong>{" "}
-                  listo para pegar en ChatGPT o Gemini.
-                </p>
-              </div>
-
-              <div style={styles.infoBox}>
-                <Icon name="shield" />
-                <p style={{ margin: 0, lineHeight: 1.55 }}>
-                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-                    Privacidad:
-                  </strong>{" "}
-                  esta mini-app no guarda nada. Tus respuestas se quedan en tu navegador. Solo genera texto (el prompt)
-                  para que tú decidas si lo copias y lo usas.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "center", marginTop: 18 }}>
-                <button
-                  onClick={handleNext}
-                  style={styles.buttonPrimary}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
-                >
-                  Empezar tu diseño <span aria-hidden="true">{ICON.arrow}</span>
-                </button>
-              </div>
-            </div>
-          </div>
+		      <div style={{ padding: "18px 0 8px" }}>
+		        <h1 style={{ ...styles.brandTitle, fontSize: 68 }}>TRIB & TRIP</h1>
+		        <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 8 }}>Más que un viaje</p>
+		      </div>
+		
+		      <div style={{ ...styles.card, textAlign: "left", marginTop: 22 }}>
+		
+		        {/* BLOQUE 1 */}
+		        <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 22 }}>
+		          <Icon name="sparkles" />
+		          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65 }}>
+		            <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+		              No vamos a planear un viaje.
+		            </strong>
+		            <br />
+		            Vamos a diseñar cómo quieres vivirlo.
+		            <br />
+		            Energía. Ritmo. Barrios reales.
+		          </p>
+		        </div>
+		
+		        {/* BLOQUE 2 */}
+		        <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginBottom: 18 }}>
+		          <Icon name="map" />
+		          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.65 }}>
+		            Te haré unas preguntas rápidas y generarás un{" "}
+		            <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
+		              prompt TRIB & TRIP
+		            </strong>{" "}
+		            listo para usar en la IA que prefieras.
+		          </p>
+		        </div>
+		
+		        {/* PRIVACIDAD SUTIL */}
+		        <div style={{ marginTop: 8, marginBottom: 26, fontSize: 13, opacity: 0.65 }}>
+		          Nada se guarda. Todo ocurre en tu navegador.
+		        </div>
+		
+		        {/* BOTÓN MEJORADO */}
+		        <div style={{ display: "flex", justifyContent: "center" }}>
+		          <button
+		            onClick={handleNext}
+		            style={{
+		              ...styles.buttonPrimary,
+		              padding: "14px 28px",
+		              fontSize: 16,
+		            }}
+		            onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
+		            onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
+		          >
+		            Diseñar mi itinerario <span aria-hidden="true">{ICON.arrow}</span>
+		          </button>
+		        </div>
+		
+		      </div>
+		    </div>
         );
 
       case 1:
@@ -487,7 +492,7 @@ FIN DEL PROMPT`;
 
               <div>
                 <div style={styles.label}>
-                  <Icon name="plane" /> Estructura del viaje
+                  <Icon name="compass" /> Estructura del viaje
                 </div>
                 <select
                   value={data.estructura}
@@ -535,12 +540,12 @@ FIN DEL PROMPT`;
             <div style={styles.card}>
               <div style={{ marginBottom: 18 }}>
                 <div style={styles.label}>
-                  <Icon name="clock" /> Vuelos u horarios ya definidos
+                  <Icon name="clock" /> Horarios de llegada al destino y regreso (vuelo, coche, tren…)
                 </div>
                 <textarea
                   value={data.vuelos}
                   onChange={(e) => updateData("vuelos", e.target.value)}
-                  placeholder="Ej: Llego el 14 a las 10:00, regreso el 19 a las 20:00"
+                  placeholder="Ej: Llego el 14 a las 10:00 al destino, regreso el 19 a las 20:00"
                   style={styles.textarea}
                 />
               </div>
