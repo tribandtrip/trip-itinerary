@@ -1,958 +1,523 @@
-/* itinerary.jsx */
-/* GitHub Pages-ready (sin bundler). No lucide-react. Render incluido. */
+// TRIB & TRIP — Generador de Itinerario v2
+// Opción A: Prompt generator mejorado. Sin backend, sin API key, sin costes.
+// El formulario construye un prompt rico que el usuario usa en cualquier IA.
 
-const { useEffect, useMemo, useRef, useState } = React;
+const { useState, useRef } = React;
 
-const INITIAL_DATA = {
-  destino: "",
-  fechas: "",
-  acompanantes: "Solo",
-  estructura: "Base única (desde donde me muevo)",
-  vuelos: "",
-  alojamiento: "",
-  reservas: "",
-  energia: "Medio (Equilibrado)",
-  tipoViaje: "Cultural/Naturaleza",
-  integracion: "Sí, quiero conectar",
-  presupuesto: "",
-  estadoEmocional: "",
+// ─── Paleta ───────────────────────────────────────────────────────────────────
+const C = {
+  sand:  "#F0EBE1",
+  terra: "#C96A38",
+  tl:    "#E8855A",
+  ink:   "#1C1A17",
+  mist:  "#8B8179",
+  cream: "#FAF7F2",
+  moss:  "#4A6741",
+  line:  "#E0D9CF",
+  ok:    "#4A6741",
 };
 
-// Colores marca
-const BRAND = {
-  tierra: "#54614A",
-  arena: "#F0EBE1",
-  carbon: "#3C3C3B",
-  ocre: "#C5A869",
-  blanco: "#FFFFFF",
-};
-
-// Iconos simples (emoji) para evitar dependencias
-const ICON = {
-  sparkles: "✨",
-  map: "🗺️",
-  calendar: "📅",
-  users: "👤",
-  plane: "✈️",
-  compass: "🧭",
-  clock: "⏰",
-  home: "🏠",
-  check: "✅",
-  battery: "🔋",
-  wallet: "💳",
-  heart: "❤️",
-  shield: "🛡️",
-  copy: "📋",
-  link: "🔗",
-  arrow: "➡️",
-  refresh: "🔄",
-};
-
-function App() {
-  const [step, setStep] = useState(0);
-  const [data, setData] = useState(INITIAL_DATA);
-  const [generatedPrompt, setGeneratedPrompt] = useState("");
-  const [copied, setCopied] = useState(false);
-  const scrollRef = useRef(null);
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [step]);
-
-  const updateData = (field, value) => setData((prev) => ({ ...prev, [field]: value }));
-  const handleNext = () => setStep((prev) => prev + 1);
-  const handleBack = () => setStep((prev) => Math.max(0, prev - 1));
-
-  const canProceedStep1 = Boolean(data.destino?.trim()) && Boolean(data.fechas?.trim());
-
-  const buildPrompt = () => {
-    const DESTINO = data.destino || "";
-    const FECHAS = data.fechas || "";
-    const ACOMPANANTES = data.acompanantes || "Solo";
-    const ESTRUCTURA = data.estructura || "Base única (desde donde me muevo)";
-    const VUELOS = data.vuelos?.trim() ? data.vuelos.trim() : "No definidos";
-    const ALOJAMIENTO = data.alojamiento?.trim() ? data.alojamiento.trim() : "No definido";
-    const RESERVAS = data.reservas?.trim() ? data.reservas.trim() : "Ninguno";
-    const ENERGIA = data.energia || "Medio (Equilibrado)";
-    const INTEGRACION = data.integracion || "Sí, quiero conectar";
-    const PRESUPUESTO = data.presupuesto?.trim() ? data.presupuesto.trim() : "No definido";
-    const ESTADO_EMOCIONAL = data.estadoEmocional?.trim() ? data.estadoEmocional.trim() : "No especificado";
-
-    return `INICIO DEL PROMPT
-Quiero que actúes como mi asistente de viaje personal con el estilo TRIB & TRIP.
-
-Filosofía (obligatoria):
-	•	“Más que un viaje”: no busco tachar lugares, busco vivir el lugar con calma.
-	•	No por hacer más será mejor. Prioriza energía, salud y disfrute.
-	•	Agrupa por barrios/zona para no estar saltando de un lado a otro.
-	•	Máximo 1 evento fuerte por día. El resto suave.
-	•	Incluye tiempo muerto intencional (cafés, bancos, paseos, observar vida local).
-	•	Si surge una oportunidad humana valiosa, priorízala sobre el plan.
-	•	Cierre con: “Ser dueño de ti mismo”.
-
-Datos del viaje (usar exactamente estos datos):
-	•	Destino: ${DESTINO}
-	•	Fechas: ${FECHAS}
-	•	Viajo: ${ACOMPANANTES}
-	•	Estructura: ${ESTRUCTURA}
-	•	Horarios/Vuelos: ${VUELOS}
-	•	Alojamiento/zona: ${ALOJAMIENTO}
-	•	Reservas y anclajes (sí o sí): ${RESERVAS}
-	•	Nivel de energía: ${ENERGIA}
-	•	Integración local: ${INTEGRACION}
-	•	Presupuesto diario aproximado en destino (sin vuelos/alojamiento): ${PRESUPUESTO}
-	•	Estado emocional previo: ${ESTADO_EMOCIONAL}
-
-Objetivo:
-Diseña un itinerario realista y flexible. Quiero vivir el destino “desde dentro”: cafés locales, pubs auténticos, librerías, campus/universidad si aplica, barrios reales, mercados y paseos. Mezcla imprescindibles con vida local. Evita recomendaciones genéricas.
-
-Entrega en este formato (obligatorio):
-	1.	Enfoque del viaje (2–4 líneas) alineado con mi estado emocional.
-	2.	Itinerario día a día (con bloques por zona: mañana/tarde/noche). Horas solo cuando importen (vuelos, tours, reservas, partido, etc.).
-	•	Para cada día:
-	•	Plan Base
-	•	Plan B si llueve/frío
-	•	Opción social (hostel, pub, evento local)
-	•	Espacio de calma (banco, café, paseo)
-	•	2–3 sugerencias de comida (local + algo internacional bueno)
-	•	1 spot para grabar contenido auténtico
-	3.	Recomendaciones por categorías (sin lujo, precio medio):
-	•	Comida típica local imprescindible
-	•	Cafés / chocolate / bakery
-	•	Pubs con ambiente local
-	•	Pizza / italiano / mexicano (si aplica)
-	•	Compras rápidas sin dedicar un día entero (zonas y momentos)
-	4.	Coste estimado en destino:
-	•	Estimación diaria y total (comida, transporte, entradas, extras, margen 15%)
-	5.	Checklist previo al viaje (seguro, documentación, requisitos entrada oficiales, SIM, banco, copias digitales, botiquín, clima 5 días antes).
-	6.	Cierre humano breve recordando: “Más que un viaje, es el camino” + “Ser dueño de ti mismo”.
-
-Restricciones:
-	•	No inventes horarios si no los he dado.
-	•	Si propones eventos/horarios concretos (partidos, tours, reservas, etc.), solo confirma lo que está en mis datos. Si no, márcalo como “a confirmar” y sugiere verificar en fuentes oficiales.
-	•	Si algo es incierto, da rangos y di que hay que verificar.
-	•	Evita listas interminables: prioriza calidad y coherencia.
-FIN DEL PROMPT`;
-  };
-
-  const generatePromptAndGo = () => {
-    const prompt = buildPrompt();
-    setGeneratedPrompt(prompt);
-    setStep(5);
-  };
-
-  // Copia “clásica” (funciona incluso cuando writeText está bloqueado por Permissions-Policy)
-  const copyToClipboard = () => {
-    const textArea = document.createElement("textarea");
-    textArea.value = generatedPrompt;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-
-    try {
-      document.execCommand("copy");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch (err) {
-      console.error("Error copiando al portapapeles:", err);
-      setCopied(false);
-    }
-
-    document.body.removeChild(textArea);
-  };
-
-  const restart = () => {
-    setData(INITIAL_DATA);
-    setGeneratedPrompt("");
-    setCopied(false);
-    setStep(0);
-  };
-
-  const openChatGPT = () => window.open("https://chat.openai.com/", "_blank", "noopener,noreferrer");
-  const openGemini = () => window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
-
-  const styles = useMemo(() => {
-    return {
-      page: {
-        minHeight: "100vh",
-        background: BRAND.arena,
-        padding: "16px",
-        fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif",
-        color: BRAND.carbon,
-      },
-      container: {
-        maxWidth: 860,
-        margin: "0 auto",
-        padding: "8px 0 32px",
-      },
-      progressWrap: {
-        maxWidth: 720,
-        margin: "0 auto 22px",
-        height: 8,
-        background: BRAND.blanco,
-        borderRadius: 999,
-        overflow: "hidden",
-        boxShadow: "inset 0 1px 2px rgba(0,0,0,0.08)",
-      },
-      progressBar: (pct) => ({
-        width: `${pct}%`,
-        height: "100%",
-        background: BRAND.ocre,
-        transition: "width 300ms ease",
-      }),
-      brandTitle: {
-        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-        fontWeight: 900,
-        letterSpacing: "-0.04em",
-        color: BRAND.tierra,
-        margin: 0,
-        lineHeight: 1,
-      },
-      brandSub: {
-        fontFamily: "Inter, system-ui, sans-serif",
-        fontWeight: 600,
-        letterSpacing: "0.22em",
-        textTransform: "uppercase",
-        color: BRAND.tierra,
-        margin: 0,
-      },
-      card: {
-        background: BRAND.blanco,
-        border: `1px solid ${BRAND.arena}`,
-        borderRadius: 24,
-        padding: 22,
-        boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-      },
-      h3: {
-        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-        fontWeight: 900,
-        color: BRAND.tierra,
-        textAlign: "center",
-        margin: "8px 0 14px",
-        fontSize: 30,
-      },
-      label: {
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-        fontWeight: 600,
-        color: BRAND.carbon,
-        fontSize: 18,
-        marginBottom: 8,
-      },
-      input: {
-        width: "100%",
-        padding: "14px 14px",
-        borderRadius: 16,
-        border: `1px solid ${BRAND.arena}`,
-        background: "rgba(240,235,225,0.35)",
-        outline: "none",
-        fontSize: 15,
-      },
-      textarea: {
-        width: "100%",
-        padding: "14px 14px",
-        borderRadius: 16,
-        border: `1px solid ${BRAND.arena}`,
-        background: "rgba(240,235,225,0.35)",
-        outline: "none",
-        fontSize: 15,
-        minHeight: 96,
-        resize: "vertical",
-      },
-      buttonPrimary: {
-        background: BRAND.tierra,
-        color: "#fff",
-        border: "none",
-        padding: "12px 18px",
-        borderRadius: 999,
-        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-        fontWeight: 600,
-        cursor: "pointer",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 10,
-        boxShadow: "0 6px 18px rgba(0,0,0,0.10)",
-      },
-      buttonPrimaryDisabled: {
-        opacity: 0.45,
-        cursor: "not-allowed",
-      },
-      buttonGhost: {
-        background: "transparent",
-        color: BRAND.carbon,
-        border: "none",
-        padding: "10px 10px",
-        borderRadius: 12,
-        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-        fontWeight: 600,
-        cursor: "pointer",
-      },
-      buttonSecondary: {
-        background: BRAND.blanco,
-        color: BRAND.carbon,
-        border: `1px solid ${BRAND.arena}`,
-        padding: "12px 18px",
-        borderRadius: 999,
-        fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-        fontWeight: 600,
-        cursor: "pointer",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 10,
-      },
-      rowBetween: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 12,
-        marginTop: 14,
-      },
-      infoBox: {
-        background: "rgba(240,235,225,0.55)",
-        border: `1px solid ${BRAND.arena}`,
-        borderRadius: 18,
-        padding: 14,
-        display: "flex",
-        gap: 12,
-        alignItems: "flex-start",
-      },
-      monoArea: {
-        width: "100%",
-        minHeight: 340,
-        padding: 14,
-        borderRadius: 18,
-        border: `1px solid ${BRAND.arena}`,
-        background: "rgba(240,235,225,0.25)",
-        fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace",
-        fontSize: 12.5,
-        color: BRAND.carbon,
-        outline: "none",
-        resize: "vertical",
-      },
-      smallNote: {
-        fontSize: 12.5,
-        opacity: 0.75,
-        lineHeight: 1.35,
-      },
-      stepIcon: {
-        width: 56,
-        height: 56,
-        borderRadius: 14,
-        objectFit: "cover",
-        boxShadow: "0 6px 18px rgba(0,0,0,0.10)",
-      },
-      iconChip: {
-        width: 28,
-        height: 28,
-        borderRadius: 10,
-        background: "rgba(197,168,105,0.20)",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flex: "0 0 auto",
-        marginTop: 2,
-      },
-      iconTxt: {
-        fontSize: 16,
-      },
-    };
-  }, []);
-
-  const StepHeaderIcon = () => (
-    <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
-      <img src="./icon-tblanco-bgverde.jpg" alt="TRIB & TRIP" style={styles.stepIcon} />
-    </div>
-  );
-
-  const Icon = ({ name }) => (
-    <span style={styles.iconChip} aria-hidden="true">
-      <span style={styles.iconTxt}>{ICON[name]}</span>
-    </span>
-  );
-
-  const renderStep = () => {
-    switch (step) {
-      case 0:
-        return (
-          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto", textAlign: "center", paddingTop: 20 }}>
-		      
-		      <div style={{ padding: "24px 0 12px" }}>
-		        <h1 style={{ ...styles.brandTitle, fontSize: 68 }}>TRIB & TRIP</h1>
-		        <p style={{ ...styles.brandSub, fontSize: 18, marginTop: 10 }}>Más que un viaje</p>
-		      </div>
-		
-		      <div style={{ ...styles.card, textAlign: "left", marginTop: 28, padding: 32 }}>
-		
-		        {/* BLOQUE 1 */}
-		        <div style={{ 
-					  textAlign: "center", 
-					  marginBottom: 32 
-					}}>
-					
-					  <div style={{
-					    width: 56,
-					    height: 56,
-					    margin: "0 auto 18px",
-					    borderRadius: 16,
-					    background: "rgba(84,97,74,0.18)",
-					    display: "flex",
-					    alignItems: "center",
-					    justifyContent: "center",
-					    fontSize: 24
-					  }}>
-					    🧭
-					  </div>
-					
-					  <div style={{ 
-					    fontSize: 20,
-					    fontWeight: 700,
-					    color: BRAND.tierra,
-					    fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-					    marginBottom: 10
-					  }}>
-					    No vamos a planear un viaje.
-					  </div>
-					
-					  <div style={{ 
-					    fontSize: 18,
-					    lineHeight: 1.6,
-					    color: BRAND.carbon
-					  }}>
-					    Vamos a diseñar cómo quieres vivirlo.
-					  </div>
-					
-					  <div style={{ 
-					    marginTop: 10,
-					    fontSize: 16,
-					    opacity: 0.75
-					  }}>
-					    Energía. Ritmo. Barrios reales.
-					  </div>
-					
-					</div>
-		
-		        {/* BLOQUE 2 */}
-		        <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 34 }}>
-		          <Icon name="map" />
-		          <p style={{ margin: 0, fontSize: 17, lineHeight: 1.7 }}>
-		            Responde unas preguntas rápidas y genera un{" "}
-		            <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-		              prompt TRIB & TRIP
-		            </strong>{" "}
-		            listo para usar en la IA que prefieras.
-		          </p>
-		        </div>
-		
-		        {/* BOTÓN */}
-		        <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
-		          <button
-		            onClick={handleNext}
-		            style={{
-		              ...styles.buttonPrimary,
-		              padding: "16px 36px",
-		              fontSize: 17,
-		              letterSpacing: "0.5px",
-		              boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
-		            }}
-		            onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
-		            onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
-		          >
-		            Crear mi itinerario <span aria-hidden="true">{ICON.arrow}</span>
-		          </button>
-		        </div>
-		
-		        {/* PRIVACIDAD SUTIL DEBAJO */}
-		        <div style={{ 
-		          display: "flex", 
-		          justifyContent: "center", 
-		          alignItems: "center", 
-		          gap: 8, 
-		          marginTop: 22,
-		          fontSize: 13,
-		          opacity: 0.55 
-		        }}>
-		          <span style={{ fontSize: 14 }}>{ICON.shield}</span>
-		          <span>Nada se guarda. Todo ocurre en tu navegador.</span>
-		        </div>
-		
-		      </div>
-		    </div>
-        );
-
-      case 1:
-        return (
-          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
-            <StepHeaderIcon />
-            <h3 style={styles.h3}>Lo básico de tu camino</h3>
-
-            <div style={styles.card}>
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="map" /> ¿Cuál es tu destino?
-                </div>
-                <input
-                  value={data.destino}
-                  onChange={(e) => updateData("destino", e.target.value)}
-                  placeholder="Ej: Boston, Estados Unidos"
-                  style={styles.input}
-                />
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="calendar" /> ¿En qué fechas viajas?
-                </div>
-                <input
-                  value={data.fechas}
-                  onChange={(e) => updateData("fechas", e.target.value)}
-                  placeholder="Ej: 14 al 19 de Marzo"
-                  style={styles.input}
-                />
-                {(!data.destino?.trim() || !data.fechas?.trim()) && (
-                  <div style={{ marginTop: 8, ...styles.smallNote }}>
-                    * Para seguir, necesitamos <strong>destino</strong> y <strong>fechas</strong>.
-                  </div>
-                )}
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="users" /> ¿Viajas solo o acompañado?
-                </div>
-                <select
-                  value={data.acompanantes}
-                  onChange={(e) => updateData("acompanantes", e.target.value)}
-                  style={styles.input}
-                >
-                  <option>Solo</option>
-                  <option>En pareja</option>
-                  <option>Con amigos</option>
-                  <option>En familia</option>
-                </select>
-              </div>
-
-              <div>
-                <div style={styles.label}>
-                  <Icon name="compass" /> Estructura del viaje
-                </div>
-                <select
-                  value={data.estructura}
-                  onChange={(e) => updateData("estructura", e.target.value)}
-                  style={styles.input}
-                >
-                  <option>Base única (desde donde me muevo)</option>
-                  <option>Ruta definida (varias paradas marcadas)</option>
-                  <option>Ruta abierta (fluyendo sobre la marcha)</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={styles.rowBetween}>
-              <button style={styles.buttonGhost} onClick={handleBack}>
-                Atrás
-              </button>
-
-              <button
-                onClick={handleNext}
-                disabled={!canProceedStep1}
-                style={{
-                  ...styles.buttonPrimary,
-                  ...(canProceedStep1 ? null : styles.buttonPrimaryDisabled),
-                }}
-                onMouseEnter={(e) => {
-                  if (canProceedStep1) e.currentTarget.style.background = BRAND.carbon;
-                }}
-                onMouseLeave={(e) => {
-                  if (canProceedStep1) e.currentTarget.style.background = BRAND.tierra;
-                }}
-              >
-                Siguiente paso <span aria-hidden="true">{ICON.arrow}</span>
-              </button>
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
-            <StepHeaderIcon />
-            <h3 style={styles.h3}>Tus anclajes fijos</h3>
-
-            <div style={styles.card}>
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="clock" /> Horarios de llegada al destino y regreso (vuelo, coche, tren…)
-                </div>
-                <textarea
-                  value={data.vuelos}
-                  onChange={(e) => updateData("vuelos", e.target.value)}
-                  placeholder="Ej: Llego el 14 a las 10:00 al destino, regreso el 19 a las 20:00"
-                  style={styles.textarea}
-                />
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="home" /> Alojamiento o zona prevista
-                </div>
-                <input
-                  value={data.alojamiento}
-                  onChange={(e) => updateData("alojamiento", e.target.value)}
-                  placeholder="Ej: Centro / Back Bay / hostel..."
-                  style={styles.input}
-                />
-              </div>
-
-              <div>
-                <div style={styles.label}>
-                  <Icon name="check" /> Reservas cerradas sí o sí
-                </div>
-                <textarea
-                  value={data.reservas}
-                  onChange={(e) => updateData("reservas", e.target.value)}
-                  placeholder="Ej: Partido / museo / tour..."
-                  style={styles.textarea}
-                />
-              </div>
-            </div>
-
-            <div style={styles.rowBetween}>
-              <button style={styles.buttonGhost} onClick={handleBack}>
-                Atrás
-              </button>
-
-              <button
-                onClick={handleNext}
-                style={styles.buttonPrimary}
-                onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
-                onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
-              >
-                Siguiente paso <span aria-hidden="true">{ICON.arrow}</span>
-              </button>
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
-            <StepHeaderIcon />
-            <h3 style={styles.h3}>Tu energía e intención</h3>
-
-            <div style={styles.card}>
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="battery" /> Nivel de energía deseado
-                </div>
-
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                  {["Bajo (Relax)", "Medio (Equilibrado)", "Alto (Exploración)"].map((lvl) => {
-                    const active = data.energia === lvl;
-                    return (
-                      <button
-                        key={lvl}
-                        onClick={() => updateData("energia", lvl)}
-                        style={{
-                          flex: "1 1 180px",
-                          padding: "12px 14px",
-                          borderRadius: 16,
-                          border: `1px solid ${active ? BRAND.tierra : BRAND.arena}`,
-                          background: active ? BRAND.tierra : "rgba(240,235,225,0.35)",
-                          color: active ? "#fff" : BRAND.carbon,
-                          fontFamily: "'DM Sans', Inter, system-ui, sans-serif",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {lvl}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="wallet" /> Presupuesto diario (en destino)
-                </div>
-                <input
-                  value={data.presupuesto}
-                  onChange={(e) => updateData("presupuesto", e.target.value)}
-                  placeholder="Ej: 50€/día, mochilero, medio..."
-                  style={styles.input}
-                />
-              </div>
-
-              <div style={{ marginBottom: 18 }}>
-                <div style={styles.label}>
-                  <Icon name="users" /> ¿Quieres integración local?
-                </div>
-                <select
-                  value={data.integracion}
-                  onChange={(e) => updateData("integracion", e.target.value)}
-                  style={styles.input}
-                >
-                  <option>Sí, quiero conectar con locales y su vida diaria</option>
-                  <option>A medias, turismo con toques locales</option>
-                  <option>No, prefiero mantenerme a mi aire</option>
-                </select>
-              </div>
-
-              <div>
-                <div style={styles.label}>
-                  <Icon name="heart" /> ¿Cómo estás emocionalmente ahora?
-                </div>
-                <textarea
-                  value={data.estadoEmocional}
-                  onChange={(e) => updateData("estadoEmocional", e.target.value)}
-                  placeholder="Ej: agotado por el trabajo, necesito paz..."
-                  style={styles.textarea}
-                />
-              </div>
-            </div>
-
-            <div style={styles.rowBetween}>
-              <button style={styles.buttonGhost} onClick={handleBack}>
-                Atrás
-              </button>
-
-              <button
-                onClick={handleNext}
-                style={styles.buttonPrimary}
-                onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
-                onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
-              >
-                Revisar resumen <span aria-hidden="true">{ICON.arrow}</span>
-              </button>
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div ref={scrollRef} style={{ maxWidth: 720, margin: "0 auto" }}>
-            <StepHeaderIcon />
-            <h3 style={styles.h3}>Así entendemos tu viaje</h3>
-
-            <div style={styles.card}>
-              <div style={{ display: "grid", gap: 12 }}>
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <Icon name="map" />
-                  <div>
-                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                      Destino y fechas:
-                    </div>
-                    <div>{data.destino} ({data.fechas})</div>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <Icon name="users" />
-                  <div>
-                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                      Compañía y formato:
-                    </div>
-                    <div>{data.acompanantes} — {data.estructura}</div>
-                  </div>
-                </div>
-
-                {data.vuelos?.trim() && (
-                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <Icon name="clock" />
-                    <div>
-                      <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                        Vuelos / horarios:
-                      </div>
-                      <div>{data.vuelos}</div>
-                    </div>
-                  </div>
-                )}
-
-                {data.alojamiento?.trim() && (
-                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <Icon name="home" />
-                    <div>
-                      <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                        Alojamiento / zona:
-                      </div>
-                      <div>{data.alojamiento}</div>
-                    </div>
-                  </div>
-                )}
-
-                {data.reservas?.trim() && (
-                  <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                    <Icon name="check" />
-                    <div>
-                      <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                        Anclajes fijos:
-                      </div>
-                      <div>{data.reservas}</div>
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <Icon name="battery" />
-                  <div>
-                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                      Energía y estado:
-                    </div>
-                    <div>
-                      {data.energia}
-                      {data.estadoEmocional?.trim() ? ` — ${data.estadoEmocional}` : ""}
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <Icon name="wallet" />
-                  <div>
-                    <div style={{ fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700, color: BRAND.tierra }}>
-                      Presupuesto e integración:
-                    </div>
-                    <div>{data.presupuesto?.trim() ? data.presupuesto : "No definido"} — {data.integracion}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${BRAND.arena}`, textAlign: "center" }}>
-                <p style={{ margin: 0, fontSize: 18, fontFamily: "'DM Sans', Inter, system-ui, sans-serif", fontWeight: 700 }}>
-                  Perfecto. Ahora voy a generar tu <span style={{ color: BRAND.tierra }}>prompt TRIB & TRIP</span>.
-                </p>
-                <p style={{ margin: "10px 0 0", lineHeight: 1.55 }}>
-                  Ese texto es lo que pegarás en ChatGPT o Gemini para que te devuelvan un itinerario realista, por zonas,
-                  con calma, y con planes alternativos.
-                </p>
-
-                <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 14 }}>
-                  <button
-                    onClick={() => setStep(1)}
-                    style={{
-                      ...styles.buttonSecondary,
-                      background: "rgba(240,235,225,0.60)",
-                    }}
-                  >
-                    Modificar datos
-                  </button>
-
-                  <button
-                    onClick={generatePromptAndGo}
-                    style={styles.buttonPrimary}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = BRAND.carbon)}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = BRAND.tierra)}
-                  >
-                    Sí, generar mi Prompt <span aria-hidden="true">{ICON.sparkles}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 5:
-        return (
-          <div ref={scrollRef} style={{ maxWidth: 860, margin: "0 auto" }}>
-            <StepHeaderIcon />
-
-            <div style={{ textAlign: "center", marginBottom: 14 }}>
-              <h3 style={{ ...styles.h3, marginBottom: 8 }}>Tu prompt personalizado</h3>
-              <p style={{ margin: 0, maxWidth: 760, marginInline: "auto", lineHeight: 1.55 }}>
-                Este texto{" "}
-                <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-                  no es tu itinerario
-                </strong>
-                . Es el prompt que vas a pegar en una IA para que te lo construya.
-                <br />
-                <span style={{ opacity: 0.8 }}>
-                  Consejo: genera el itinerario en <strong>ChatGPT</strong> y en <strong>Gemini</strong>, compara y quédate con lo mejor.
-                </span>
-              </p>
-            </div>
-
-            <div style={{ ...styles.card, padding: 18 }}>
-              <div style={styles.infoBox}>
-                <Icon name="shield" />
-                <p style={{ margin: 0, lineHeight: 1.55 }}>
-                  <strong style={{ color: BRAND.tierra, fontFamily: "'DM Sans', Inter, system-ui, sans-serif" }}>
-                    Privacidad:
-                  </strong>{" "}
-                  aquí no se guarda nada. Si cierras esta pestaña, se pierde el contenido. Si quieres conservarlo, copia el prompt.
-                </p>
-              </div>
-
-              <div style={{ marginTop: 14 }}>
-                <textarea readOnly value={generatedPrompt} style={styles.monoArea} />
-              </div>
-
-              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 12 }}>
-                <button
-                  onClick={copyToClipboard}
-                  style={{
-                    ...styles.buttonPrimary,
-                    background: copied ? BRAND.ocre : BRAND.tierra,
-                    transform: copied ? "scale(1.01)" : "none",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = copied ? BRAND.ocre : BRAND.carbon)}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = copied ? BRAND.ocre : BRAND.tierra)}
-                >
-                  <span aria-hidden="true">{copied ? ICON.check : ICON.copy}</span>
-                  {copied ? "¡Copiado!" : "Copiar prompt"}
-                </button>
-
-                <button onClick={openChatGPT} style={styles.buttonSecondary}>
-                  Abrir ChatGPT <span aria-hidden="true">{ICON.link}</span>
-                </button>
-
-                <button onClick={openGemini} style={styles.buttonSecondary}>
-                  Abrir Gemini <span aria-hidden="true">{ICON.link}</span>
-                </button>
-              </div>
-
-              <div style={{ marginTop: 10, textAlign: "center", ...styles.smallNote }}>
-                Nota: por límites de cada plataforma, no siempre se puede “autoponer” el prompt al abrir la web.
-                Por eso aquí tienes <strong>copiar</strong> + <strong>abrir</strong> en 2 clics.
-              </div>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "center", gap: 18, marginTop: 16, flexWrap: "wrap" }}>
-              <button style={styles.buttonGhost} onClick={() => setStep(4)}>
-                Volver atrás
-              </button>
-              <button style={styles.buttonGhost} onClick={restart}>
-                <span aria-hidden="true">{ICON.refresh}</span> Diseñar otro camino
-              </button>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const progressPct = step > 0 && step < 5 ? (step / 4) * 100 : 0;
-
+// ─── Estilos ──────────────────────────────────────────────────────────────────
+const CSS = `
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body,#root{background:${C.sand};font-family:'DM Sans',sans-serif;color:${C.ink};min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:${C.mist};border-radius:2px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes pop{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes shine{0%{background-position:200% center}100%{background-position:-200% center}}
+
+.fu{animation:fadeUp .4s ease both}
+.d1{animation-delay:.07s}.d2{animation-delay:.14s}.d3{animation-delay:.21s}.d4{animation-delay:.28s}
+
+/* ── Layout ── */
+.wrap{max-width:700px;margin:0 auto;padding:16px 14px 72px}
+
+/* ── Header ── */
+.logo{text-align:center;padding:36px 0 28px}
+.logo-t{
+  font-family:'DM Serif Display',serif;
+  font-size:clamp(24px,7vw,38px);
+  color:${C.terra};
+  letter-spacing:-.5px;
+  line-height:1
+}
+.logo-s{font-size:12px;color:${C.mist};margin-top:7px;letter-spacing:.5px}
+
+/* ── Progress ── */
+.prog{display:flex;gap:7px;align-items:center;margin-bottom:24px}
+.pg{flex:1;height:3px;border-radius:2px;background:#D5CEC4;transition:background .35s}
+.pg.done{background:${C.terra}}.pg.act{background:${C.tl}}
+.pgl{font-size:11px;color:${C.mist};white-space:nowrap;min-width:32px;text-align:right}
+
+/* ── Card ── */
+.card{background:${C.cream};border-radius:20px;padding:28px 24px;box-shadow:0 2px 22px rgba(28,26,23,.07);margin-bottom:14px}
+
+/* ── Step typography ── */
+.st{font-family:'DM Serif Display',serif;font-size:clamp(19px,5vw,26px);margin-bottom:5px;line-height:1.2}
+.sd{font-size:13px;color:${C.mist};margin-bottom:24px;line-height:1.65}
+
+/* ── Fields ── */
+.fi{margin-bottom:18px}
+.lb{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:${C.mist};margin-bottom:6px}
+.inp,.sel,.ta{
+  width:100%;background:${C.sand};border:1.5px solid ${C.line};
+  border-radius:11px;padding:11px 14px;
+  font-family:'DM Sans',sans-serif;font-size:14px;color:${C.ink};
+  outline:none;transition:border-color .2s,box-shadow .2s;appearance:none
+}
+.inp:focus,.sel:focus,.ta:focus{border-color:${C.terra};box-shadow:0 0 0 3px rgba(201,106,56,.12)}
+.ta{resize:vertical;min-height:80px;line-height:1.65}
+
+/* ── 2-col grid ── */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.row2{grid-template-columns:1fr}}
+
+/* ── Chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{
+  padding:7px 13px;border-radius:50px;
+  border:1.5px solid ${C.line};background:transparent;
+  font-family:'DM Sans',sans-serif;font-size:12.5px;color:${C.ink};
+  cursor:pointer;transition:all .17s;user-select:none;-webkit-user-select:none
+}
+.chip:hover{border-color:${C.tl};color:${C.terra}}
+.chip.on{background:${C.terra};border-color:${C.terra};color:#fff;animation:pop .25s ease}
+
+/* ── Nav ── */
+.br{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:10px}
+.btn{padding:12px 22px;border-radius:50px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
+.bp{background:${C.terra};color:#fff;flex:1;justify-content:center}
+.bp:hover{background:#B55C2E;transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,106,56,.3)}
+.bp:disabled{background:#D5CEC4;cursor:not-allowed;transform:none;box-shadow:none}
+.bg{background:transparent;color:${C.mist};padding:12px 16px}
+.bg:hover{color:${C.ink}}
+
+/* ── Prompt result ── */
+.result-card{background:${C.cream};border-radius:20px;padding:28px 24px;box-shadow:0 2px 22px rgba(28,26,23,.07)}
+.result-header{margin-bottom:20px}
+.result-title{font-family:'DM Serif Display',serif;font-size:clamp(17px,4vw,22px);margin-bottom:4px}
+.result-sub{font-size:12px;color:${C.mist};line-height:1.6}
+.result-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+
+.sm{
+  padding:8px 14px;border-radius:50px;
+  border:1.5px solid ${C.line};background:transparent;
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+  color:${C.mist};cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:5px
+}
+.sm:hover{border-color:${C.terra};color:${C.terra}}
+.sm.active-ia{background:${C.terra};border-color:${C.terra};color:#fff}
+
+/* ── Prompt box ── */
+.pbox{
+  background:${C.sand};border:1.5px solid ${C.line};border-radius:12px;
+  padding:18px 16px;font-family:'DM Sans',sans-serif;
+  font-size:13px;line-height:1.75;color:${C.ink};
+  white-space:pre-wrap;word-break:break-word;
+  max-height:440px;overflow-y:auto;margin-top:16px
+}
+.pbox strong{color:${C.terra};font-weight:600}
+
+/* ── IA buttons ── */
+.ia-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:14px}
+.ia-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:12px;
+  border:1.5px solid ${C.line};background:transparent;
+  font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;
+  color:${C.ink};cursor:pointer;transition:all .18s;text-decoration:none
+}
+.ia-btn:hover{border-color:${C.terra};background:rgba(201,106,56,.05);color:${C.terra}}
+.ia-icon{font-size:18px;flex-shrink:0}
+
+/* ── Copy feedback ── */
+.copy-ok{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;color:${C.ok};font-weight:600;
+  opacity:0;transition:opacity .2s
+}
+.copy-ok.show{opacity:1}
+
+/* ── Footer ── */
+.ft{text-align:center;margin-top:32px;font-size:11px;color:${C.mist};opacity:.6}
+.ft a{color:${C.mist};text-decoration:none}
+.ft a:hover{color:${C.terra}}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:${C.ink};color:#fff;
+  padding:10px 18px;border-radius:50px;
+  font-size:12.5px;font-weight:500;
+  transition:transform .25s ease;z-index:99;
+  white-space:nowrap;pointer-events:none
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── Divider ── */
+.div-line{height:1px;background:${C.line};margin:20px 0}
+`;
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+const STEPS   = ["Destino","Viajero","Ritmo","Detalles"];
+const ESTILOS = ["Cultural","Naturaleza","Gastronomía","Descanso","Aventura","Urbano","Espiritual","Fotografía","Historia","Vida nocturna"];
+const RITMOS  = ["Muy tranquilo","Pausado","Equilibrado","Activo","Intenso"];
+const TIPOS   = ["Solo/a","En pareja","Familia con niños","Grupo de amigos","Trabajo + viaje"];
+const ALOJ    = ["Hotel boutique","Hotel urbano","Hostel","Airbnb / apartamento","Casa rural","Camping","Sin preferencia"];
+const PRESUP  = ["Ajustado (económico)","Medio","Confortable","Sin límite especial"];
+
+// IAs donde pegar el prompt
+const IA_LINKS = [
+  { name:"ChatGPT",    icon:"🟢", url:"https://chat.openai.com" },
+  { name:"Claude",     icon:"🟠", url:"https://claude.ai" },
+  { name:"Gemini",     icon:"🔵", url:"https://gemini.google.com" },
+  { name:"Copilot",    icon:"⚪", url:"https://copilot.microsoft.com" },
+  { name:"Perplexity", icon:"🟣", url:"https://www.perplexity.ai" },
+  { name:"Le Chat",    icon:"🟡", url:"https://chat.mistral.ai" },
+];
+
+// ─── Prompt builder ───────────────────────────────────────────────────────────
+function buildPrompt(f) {
+  const estilos = f.estilos.length ? f.estilos.join(", ") : "viaje general sin preferencia temática";
+  const dias    = parseInt(f.dias, 10);
+
+  return `Eres un experto planificador de viajes con alma. Conoces los destinos en profundidad y sabes adaptarte al perfil real del viajero. Tu tono es cercano, humano y honesto — como un amigo que ha estado allí y quiere que disfrutes de verdad.
+
+Crea un itinerario de viaje completo y detallado para la siguiente persona:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERFIL DEL VIAJERO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Destino: ${f.destino}
+Duración: ${dias} días${f.fechas ? ` (${f.fechas})` : ""}
+Tipo de viajero: ${f.tipo}
+Intereses y estilos: ${estilos}
+Ritmo deseado: ${f.ritmo}
+Alojamiento preferido: ${f.alojamiento || "sin preferencia"}
+Presupuesto: ${f.presupuesto || "no especificado"}
+Restricciones / necesidades especiales: ${f.restricciones || "ninguna"}
+Información adicional: ${f.notas || "ninguna"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESTRUCTURA DEL ITINERARIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Organiza el itinerario con esta estructura para cada uno de los ${dias} días:
+
+📅 Día N — [Título evocador que capture el espíritu del día]
+
+🌅 Mañana
+[Descripción narrativa de 2-3 actividades. No solo listes, explica por qué merece la pena, qué ambiente tiene, qué hora es ideal para ir, si conviene reservar, etc.]
+
+☀️ Tarde
+[Continuación natural. Respeta el ritmo "${f.ritmo}" del viajero.]
+
+🌙 Noche
+[Propuesta de cena con contexto local + ambiente nocturno. Si el ritmo es tranquilo, que sea pausado.]
+
+---
+
+Al final del itinerario añade estas secciones:
+
+🧭 Consejos prácticos
+[5 consejos reales y concretos adaptados al perfil: transporte, costumbres locales, apps útiles, mejor momento para visitar cada lugar, etc.]
+
+🍽️ No te pierdas
+[3-4 recomendaciones gastronómicas imprescindibles del destino, con contexto — qué son, dónde encontrarlas, por qué son especiales]
+
+💰 Orientación de costes
+[Estimación realista del rango de gasto diario según el presupuesto indicado: alojamiento, comidas, actividades, transporte]
+
+💬 Nota para ${f.tipo === "Solo/a" ? "el viajero en solitario" : "el viajero"}
+[Párrafo personalizado según el tipo de viaje: para solo/a incluye dónde conocer gente y consejos de seguridad; para pareja sugiere momentos especiales; para familia con niños indica qué lugares son más amigables; etc.]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCCIONES DE TONO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Habla como un amigo que conoce bien el destino, no como una guía de turismo
+- No exageres ni uses lenguaje de marketing. Sé honesto si algo tiene mucha cola o no merece la pena
+- Adapta el ritmo real: con ritmo "${f.ritmo}", el día no puede estar sobrecargado de actividades
+- Usa emojis solo en los encabezados de sección, no en el texto corrido
+- Responde en español
+- Si hay fechas especificadas, ten en cuenta la temporada (clima, festividades, afluencia)`;
+}
+
+// ─── Componentes auxiliares ───────────────────────────────────────────────────
+function Chip({ label, sel, onClick }) {
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        {step > 0 && step < 5 && (
-          <div style={styles.progressWrap}>
-            <div style={styles.progressBar(progressPct)} />
-          </div>
-        )}
-        {renderStep()}
-      </div>
-    </div>
+    <button className={"chip" + (sel ? " on" : "")} onClick={onClick}>
+      {label}
+    </button>
   );
 }
 
-// Montaje (esto es lo que te faltará si copias a Pages sin bundler)
-const rootEl = document.getElementById("root");
-const root = ReactDOM.createRoot(rootEl);
-root.render(<App />);
+// ─── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [step, setStep]     = useState(0);
+  const [form, setForm]     = useState({
+    destino: "", fechas: "", dias: "7",
+    tipo: "", estilos: [], ritmo: "Equilibrado",
+    alojamiento: "", presupuesto: "", restricciones: "", notas: "",
+  });
+  const [prompt, setPrompt] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [toast,  setToast]  = useState("");
+  const [toastOn,setToastOn]= useState(false);
+  const resultRef           = useRef(null);
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const tog = (k, v) => setForm(f => ({
+    ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v]
+  }));
+
+  const showToast = msg => {
+    setToast(msg); setToastOn(true);
+    setTimeout(() => setToastOn(false), 2400);
+  };
+
+  const canNext = () => {
+    if (step === 0) return form.destino.trim() && form.dias;
+    if (step === 1) return form.tipo;
+    return true;
+  };
+
+  const generate = () => {
+    const p = buildPrompt(form);
+    setPrompt(p);
+    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
+  const copy = () => {
+    navigator.clipboard.writeText(prompt).then(() => {
+      setCopied(true);
+      showToast("✓ Prompt copiado — pégalo en tu IA favorita");
+      setTimeout(() => setCopied(false), 3000);
+    });
+  };
+
+  const reset = () => {
+    setStep(0); setPrompt(null); setCopied(false);
+    setForm({ destino:"", fechas:"", dias:"7", tipo:"", estilos:[], ritmo:"Equilibrado", alojamiento:"", presupuesto:"", restricciones:"", notas:"" });
+  };
+
+  // Render de cada paso
+  const stepContent = () => {
+    if (step === 0) return (
+      <>
+        <p className="st">¿A dónde quieres ir?</p>
+        <p className="sd">El destino y el tiempo disponible. Con eso ya podemos empezar.</p>
+        <div className="fi">
+          <label className="lb">Destino o zona</label>
+          <input className="inp"
+            placeholder="p.ej. Kioto, Japón · Costa Amalfitana · Marruecos del norte · Islandia"
+            value={form.destino}
+            onChange={e => set("destino", e.target.value)}
+            autoFocus
+          />
+        </div>
+        <div className="row2">
+          <div className="fi">
+            <label className="lb">Número de días</label>
+            <select className="sel" value={form.dias} onChange={e => set("dias", e.target.value)}>
+              {[2,3,4,5,6,7,8,9,10,12,14,21,28].map(n =>
+                <option key={n} value={n}>{n} días</option>
+              )}
+            </select>
+          </div>
+          <div className="fi">
+            <label className="lb">Fechas aproximadas (opcional)</label>
+            <input className="inp"
+              placeholder="p.ej. Agosto 2025"
+              value={form.fechas}
+              onChange={e => set("fechas", e.target.value)}
+            />
+          </div>
+        </div>
+      </>
+    );
+
+    if (step === 1) return (
+      <>
+        <p className="st">¿Cómo viajas esta vez?</p>
+        <p className="sd">Tu compañía y el tipo de experiencias que buscas.</p>
+        <div className="fi">
+          <label className="lb">Viajo…</label>
+          <div className="chips">
+            {TIPOS.map(t =>
+              <Chip key={t} label={t} sel={form.tipo === t} onClick={() => set("tipo", t)} />
+            )}
+          </div>
+        </div>
+        <div className="fi" style={{ marginTop: 16 }}>
+          <label className="lb">Me interesa sobre todo… (puedes marcar varios)</label>
+          <div className="chips">
+            {ESTILOS.map(e =>
+              <Chip key={e} label={e} sel={form.estilos.includes(e)} onClick={() => tog("estilos", e)} />
+            )}
+          </div>
+        </div>
+      </>
+    );
+
+    if (step === 2) return (
+      <>
+        <p className="st">¿Cuál es tu ritmo?</p>
+        <p className="sd">Aquí no corremos. Tú decides si quieres más pausa o más intensidad.</p>
+        <div className="fi">
+          <label className="lb">Ritmo del viaje</label>
+          <div className="chips">
+            {RITMOS.map(r =>
+              <Chip key={r} label={r} sel={form.ritmo === r} onClick={() => set("ritmo", r)} />
+            )}
+          </div>
+        </div>
+        <div className="fi" style={{ marginTop: 16 }}>
+          <label className="lb">Alojamiento preferido</label>
+          <div className="chips">
+            {ALOJ.map(a =>
+              <Chip key={a} label={a} sel={form.alojamiento === a} onClick={() => set("alojamiento", a)} />
+            )}
+          </div>
+        </div>
+      </>
+    );
+
+    if (step === 3) return (
+      <>
+        <p className="st">Últimos detalles</p>
+        <p className="sd">Cuanto más nos cuentes, más preciso será el itinerario.</p>
+        <div className="fi">
+          <label className="lb">Presupuesto aproximado</label>
+          <div className="chips">
+            {PRESUP.map(p =>
+              <Chip key={p} label={p} sel={form.presupuesto === p} onClick={() => set("presupuesto", p)} />
+            )}
+          </div>
+        </div>
+        <div className="fi" style={{ marginTop: 16 }}>
+          <label className="lb">Restricciones, alergias o necesidades especiales</label>
+          <input className="inp"
+            placeholder="p.ej. Vegano · Movilidad reducida · Sin gluten · Con mascota"
+            value={form.restricciones}
+            onChange={e => set("restricciones", e.target.value)}
+          />
+        </div>
+        <div className="fi">
+          <label className="lb">¿Algo más que quieras añadir?</label>
+          <textarea className="ta"
+            placeholder="p.ej. Es mi primer viaje solo/a. Me encanta el jazz. Prefiero evitar las zonas muy turísticas. Tengo un presupuesto ajustado para comer."
+            value={form.notas}
+            onChange={e => set("notas", e.target.value)}
+          />
+        </div>
+      </>
+    );
+  };
+
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <div className="wrap">
+
+        {/* Header */}
+        <div className="logo fu">
+          <div className="logo-t">TRIB &amp; TRIP</div>
+          <div className="logo-s">Generador de itinerario · Aquí no corremos. Aquí escuchamos.</div>
+        </div>
+
+        {/* Progress */}
+        {!prompt && (
+          <div className="prog fu d1">
+            {STEPS.map((s, i) => (
+              <div key={i} className={"pg" + (i < step ? " done" : i === step ? " act" : "")} />
+            ))}
+            <span className="pgl">{step + 1}/{STEPS.length}</span>
+          </div>
+        )}
+
+        {/* Resultado: prompt generado */}
+        {prompt && (
+          <div className="result-card fu" ref={resultRef}>
+            <div className="result-header">
+              <div className="result-title">Tu prompt para {form.destino} está listo ✦</div>
+              <div className="result-sub">
+                Copia el texto y pégalo en tu asistente de IA favorito.<br/>
+                Cuanto mejor sea la IA que uses, mejor será el itinerario.
+              </div>
+              <div className="result-actions">
+                <button className="sm" onClick={copy}>
+                  {copied ? "✓ Copiado" : "📋 Copiar prompt"}
+                </button>
+                <button className="sm" onClick={reset}>← Nuevo viaje</button>
+              </div>
+            </div>
+
+            <div className="div-line"/>
+
+            <p className="lb" style={{ marginBottom: 10 }}>Abre una de estas IAs y pega el prompt:</p>
+            <div className="ia-grid">
+              {IA_LINKS.map(ia => (
+                <a key={ia.name} href={ia.url} target="_blank" rel="noopener noreferrer" className="ia-btn"
+                   onClick={copy}>
+                  <span className="ia-icon">{ia.icon}</span>
+                  <span>{ia.name}</span>
+                </a>
+              ))}
+            </div>
+
+            <div className="div-line"/>
+
+            <p className="lb" style={{ marginBottom: 8 }}>Vista previa del prompt:</p>
+            <div className="pbox">{prompt}</div>
+
+            <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+              <button className="sm" onClick={copy}>{copied ? "✓ Copiado" : "📋 Copiar prompt"}</button>
+            </div>
+          </div>
+        )}
+
+        {/* Formulario */}
+        {!prompt && (
+          <div className="card fu d2">
+            {stepContent()}
+            <div className="br">
+              {step > 0
+                ? <button className="btn bg" onClick={() => setStep(s => s - 1)}>← Atrás</button>
+                : <div />
+              }
+              {step < STEPS.length - 1
+                ? <button className="btn bp" disabled={!canNext()} onClick={() => setStep(s => s + 1)}>
+                    Siguiente →
+                  </button>
+                : <button className="btn bp" disabled={!form.destino || !form.tipo} onClick={generate}>
+                    Generar prompt ✦
+                  </button>
+              }
+            </div>
+          </div>
+        )}
+
+        {/* Hint card solo en el paso final antes de generar */}
+        {!prompt && step === STEPS.length - 1 && (
+          <div className="card fu d3" style={{ padding: "16px 20px", opacity: .85 }}>
+            <p style={{ fontSize: 12, color: C.mist, lineHeight: 1.6 }}>
+              💡 <strong style={{ color: C.ink }}>¿Cómo funciona?</strong> Rellenamos tu perfil de viaje y generamos un prompt detallado que puedes pegar en ChatGPT, Claude, Gemini o cualquier IA. El resultado será un itinerario personalizado basado en tu forma de viajar.
+            </p>
+          </div>
+        )}
+
+        <div className="ft fu d4">
+          Sin cookies · Sin datos guardados · Tu viaje, tuyo.<br/>
+          <a href="https://tribandtrip.github.io" target="_blank" rel="noopener noreferrer">TRIB &amp; TRIP</a>
+        </div>
+      </div>
+
+      <div className={"toast" + (toastOn ? " show" : "")}>{toast}</div>
+    </>
+  );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById("root"));

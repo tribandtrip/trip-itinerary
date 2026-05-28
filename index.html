@@ -2,20 +2,24 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>TRIB & TRIP — Generador de Itinerario</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta name="description" content="Generador de itinerario de viaje personalizado. TRIB & TRIP — Aquí no corremos. Aquí escuchamos." />
+  <meta property="og:title" content="TRIB & TRIP — Generador de Itinerario" />
+  <meta property="og:description" content="Crea tu itinerario de viaje personalizado con la filosofía TRIB & TRIP." />
+  <title>TRIB & TRIP — Generador de Itinerario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    body { margin: 0; background: #F0EBE1; }
+    #root { min-height: 100vh; }
+  </style>
 </head>
-<body class="bg-[#F0EBE1]">
-
+<body>
   <div id="root"></div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <script type="text/babel" data-presets="react" src="./itinerary.jsx"></script>
 </body>
 </html>
